@@ -1,0 +1,31 @@
+ip de conexao via wifi(minha casa): 192.168.11.5, celular: 192.168.43.122
+
+Descrição de cada campo e table do Banco Cineasy baseado no sequelize :) no padrao Pascal
+Lembrando Cada tabela possuirá automaticamente 
+Tabela: User // aqui vai é a table usuarios
+Campos:
+	idUser: Primary Key, Integer
+	nome: String
+	razaoSocial: String
+	nomeFantasia : String
+	cnpj: String // String pois possui ponto e barras além dos numeros
+	
+///formaPagamento: Foregy Key(references), Integer // Ligação com a table formaPagamento
+
+	fotoUser: String //Caminho para a pasta onde contém a img
+	capaUser: String //Caminho para a pasta onde contém a img
+
+Tabela:formaPagamento // forma de pagamento pelo cartao de crédito
+Campos:
+	id: Primary Key, auto Increment e Integer
+	email:String,
+	senha: String
+	nome:String
+	Sobrenome: String
+	numCartao: Integer
+	dataValidade : date
+	CodSeguranca: Integer
+	FKUser: Foregy Key(references), Integer // Ligação com a table User
+		onUpdate: 'cascade' // usado caso acha updte no id do user venha relacionar com o mesmo id do pagamento
+		onDelete: 'cascade' // se houver delete no idUser venha deletar o relacionamento com a forma de pagamento dele
+		
