@@ -2,10 +2,11 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const path = require('path')
- 
+const methodOverride = require('method-override');
 app.use(bodyParser.urlencoded({extended:false})) 
 app.use(bodyParser.json()) // o app só json como entrada de dados
-
+// middleware usado para conseguirmos usar todos methods como get,post, put e delete com estruturas html
+app.use(methodOverride('_method'))
 //pasta public para puxar os arquivos estaticos como imagens, html(ejs) etc.
 app.use(express.static('public'));
 

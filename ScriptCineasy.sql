@@ -28,7 +28,8 @@ create table generos(
 	id_genero int auto_increment primary key,
     genero varchar(200)
 );
-select* from films where id_films = 18;
+select* from films where id_films = 21;
+DELETE FROM films WHERE id_films = 21;
 describe generos;
 describe films;
 describe filmes_genero;
@@ -55,4 +56,4 @@ where films.id_films =1;
 ALTER TABLE films MODIFY COLUMN elenco varchar(200);
 INSERT INTO films (nome,nome_ori,sinopse,foto,classficacao,duracao,trailler,diretor,distribuidor,elenco,pais_ori,status_filme) VAlUES(?,?,?,?,?,?,?,?,?,?,?,?);
 
-
+UPDATE films SET nome = ?, nome_ori = ?, sinopse = ?, foto = ?,classficacao = ?,duracao = ?,trailler = ?,diretor= ?,distribuidor= ?,elenco = ?,elenco= ?,pais_ori = ?,status_filme = ? WHERE id_films = ? ;

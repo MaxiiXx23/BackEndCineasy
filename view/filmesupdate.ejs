@@ -1,0 +1,24 @@
+<h1>Update</h1>
+<form method="post" action="http://localhost:3000/filmes/update?_method=PUT" enctype="multipart/form-data" >
+  <label>Id do filme</label><input type="text" name="id_films"/><br/>
+  <label>Nome do filme:</label><input type="text" name="nome"/><br/>
+  <label>Nome original:</label><input type="text" name="nome_ori"/><br/>
+  <label>Sinopse</label><textarea name="sinopse"></textarea><br/>
+  <input type="file" name="img"/><br/>
+  <label>Classificação:</label><select name="class">
+      <option value="L">Livre</option>
+      <option value="10">10</option>
+      <option value="12">12</option>
+      <option value="14">14</option>
+      <option value="16">16</option>
+      <option value="18">18</option>
+    </select><br/>
+    <label>Duração:</label><input type="text" name="duracao"/><br/>
+    <label>Trailer:</label><input type="text" name="trailer"/><br/>
+    <label>Diretor:</label><input type="text" name="diretor"/><br/>
+    <label>Distribuidor:</label><input type="text" name="distribuidor"/><br/>
+    <label>Pais de origem:</label><input type="text" name="pais_ori"/><br/>
+    <p>Descrição Status: 1: Em Cartaz, 2: Em Alta e Em Cartaz, 3:Estreia</p>
+    <label>Status do filme:</label><input type="text" name="status_filme"/><br/>
+  <input type="submit" value="enviar" />
+</form
