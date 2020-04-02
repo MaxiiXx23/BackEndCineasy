@@ -13,10 +13,10 @@ app.use(express.static('public'));
 // ejs para testar o ulpload
 app.set('view engine', 'ejs')
 
-const RotaUsuario = require('./routes/usuario');
-const RotaComentario = require('./routes/comentarios');
-const RotaPost = require('./routes/posts');
-const RotaFilme = require('./routes/filmes');
+const RotaUsuario = require('./route/usuario');
+const RotaComentario = require('./route/comentarios');
+const RotaPost = require('./route/posts');
+const RotaFilme = require('./route/filmes');
 
 app.get('/', function (req, res) {
   res.send('Hello World')
