@@ -29,7 +29,7 @@ create table generos(
     genero varchar(200)
 );
 select* from films where id_films = 21;
-DELETE FROM films WHERE id_films = 21;
+DELETE FROM films WHERE id_films = 27;
 describe generos;
 describe films;
 describe filmes_genero;
@@ -41,8 +41,10 @@ IdFilms INT(5)UNSIGNED NOT NULL,
 IdGenero INT(5)UNSIGNED NOT NULL
 );
 insert into generos(genero)values('Drama');
+select * from films;
 select * from generos;
 select * from filmes_genero;
+ALTER TABLE films ADD data_estreia varchar(10);
 ALTER TABLE filmes_genero ADD FOREIGN KEY(IdFilms) REFERENCES films(id_films);
 ALTER TABLE filmes_genero ADD FOREIGN KEY(IdGenero) REFERENCES generos(id_genero);
 INSERT INTO filmes_genero(IdFilms, IdGenero) VALUES (1,4);
@@ -57,3 +59,6 @@ ALTER TABLE films MODIFY COLUMN elenco varchar(200);
 INSERT INTO films (nome,nome_ori,sinopse,foto,classficacao,duracao,trailler,diretor,distribuidor,elenco,pais_ori,status_filme) VAlUES(?,?,?,?,?,?,?,?,?,?,?,?);
 
 UPDATE films SET nome = ?, nome_ori = ?, sinopse = ?, foto = ?,classficacao = ?,duracao = ?,trailler = ?,diretor= ?,distribuidor= ?,elenco = ?,elenco= ?,pais_ori = ?,status_filme = ? WHERE id_films = ? ;
+
+
+delete from generos where id_genero  = 6;
