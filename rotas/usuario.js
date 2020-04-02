@@ -1,0 +1,106 @@
+const express = require('express')
+const router = express.Router();
+const mysql = require('../models/conexao')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const JwtKey = 'Zapzip';
+const multer = require("multer")
+const { check, validationResult } = require('express-validator');
+// router.get é o select, router.delete é deletar, router.post é para inserir e router.patch é para atualizar
+
+router.get('/', (req, res, next) => {
+    res.status(200).send({
+        mensagem: 'Usando a porta Usuarios'
+    })
+});
+// rota de cadastro
+router.post('/', [
+    check('email').isEmail()
+], (req, res, next) => {
+    const ErrValidator = validationResult(req);
+    if (!ErrValidator.isEmpty()) {
+        return res.status(422).json({ ErrValidator: ErrValidator.array() })
+    } else {
+        mysql.getConnection((err, conn) => {
+            if (err) { return res.status(500).send({ error: err }) }
+            bcrypt.hash(req.body.senha, 5, (errBcrypt, hash) => {
+                if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
+                conn.query(`INSERT INTO usuarios(email,senha)values(?,?)`,
+                    [req.body.email, hash],
+                    (eror, results) => {
+                        conn.release();
+                        if (eror) { return res.status(500).send({ error: eror }) } else {
+                            return res.status(200).send({ mensagem: 'Usuário criado com sucesso' })
+                        }
+                        // retornar o RESULTS para tirar o loop infinito
+                    }
+                )
+            })
+        })
+    }
+});
+// login com jwt 
+router.post('/login', (req, res, next) => {
+    mysql.getConnection((error, conn) => {
+        if (error) { return res.status(500).send({ error: error }) }
+        const query = `SELECT * from usuarios WHERE email=?`;
+        conn.query(query, [req.body.email], (error, results, fields) => {
+            conn.release();
+            if (error) { return res.status(500).send({ error: error }) }
+            if (results.length < 1) {
+                return res.status(401).send({ mensagem: 'Falha na autenticação' })
+            }
+            bcrypt.compare(req.body.senha, results[0].senha, (err, result) => {
+                if (err) {
+                    return res.status(401).send({ mensagem: 'Falha na autenticação' })
+                }
+                if (result) {
+                    let token = jwt.sign({
+                        id_usuario: results[0].id_user,
+                        email: results[0].email
+                    }, JwtKey, {
+                        expiresIn: '1h'
+                    })
+                    return res.status(200).send({
+                        mensagem: 'Login feito com sucesso!',
+                        token, id: results[0].id_user
+                    })
+                }
+                return res.status(401).send({ mensagem: 'Falha na autenticação' })
+            })
+        })
+    })
+})
+// caminho da pasta para upload das foto de perfil
+const storage = multer.diskStorage({
+    destination: (req, res, cb) => {
+        cb(null, 'public/fotoperfl/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname)
+    }
+})
+const upload = multer({ storage })
+
+router.get('/dados/:id_user', (req, res, next) => {
+    const id = req.params.id_user
+    const numId = Number(id)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select nome, fotoUser,capaUser,frase,capaUser from usuarios where id_user= ?`;
+            conn.query(query, [numId], (eror, result) => {
+                conn.release();
+                if(eror){
+                    return res.status(500).send({ error: eror })
+                }else{
+                    return res.status(200).send(
+                        result
+                    )
+                }
+            })
+        }
+    })
+})
+module.exports = router;
