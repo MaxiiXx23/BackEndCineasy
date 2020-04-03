@@ -12,7 +12,7 @@
       <option value="14">14</option>
       <option value="16">16</option>
       <option value="18">18</option>
-    </select><br/>
+    </select><br/><br/>
     <label>Gêneros:</label>
       <select name="genero" multiple="multiple">
         <% generos.forEach(function(data) { %>
@@ -24,6 +24,7 @@
     <label>Diretor:</label><input type="text" name="diretor"/><br/>
     <label>Distribuidor:</label><input type="text" name="distribuidor"/><br/>
     <label>Pais de origem:</label><input type="text" name="pais_ori"/><br/>
+    <label>Data de estreia:</label><input type="text" name="data_estreia"/><br/>
     <p>Descrição Status: 1: Em Cartaz, 2: Em Alta e Em Cartaz, 3:Estreia, 4:Nao mais em cartaz</p>
     <label>Status do filme:</label><input type="text" name="status_filme"/><br/>
   <input type="submit" value="enviar" />
