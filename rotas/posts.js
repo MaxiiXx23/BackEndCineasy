@@ -37,7 +37,7 @@ router.get('/ver/:limite', (req, res, next) => {
 //multer 
 const storage = multer.diskStorage({
     destination: (req, res, cb) => {
-        cb(null,'public/imgs/')
+        cb(null,'public/posts/')
     },
     filename: (req, file, cb) => {
         cb(null,Date.now()+'-'+file.originalname)
@@ -46,7 +46,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage})
 
 router.post('/',upload.single('img'), (req, res, next) => {
-    console.log(req.file)
+    //console.log(req.file)
     const note = req.body.note;
     const img_post = req.file.filename;
     const data = req.body.data;

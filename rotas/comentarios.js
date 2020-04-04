@@ -18,8 +18,8 @@ router.post('/comentar',
         } else {
             mysql.getConnection((err, conn) => {
                 if (err) { return res.status(500).send({ error: err }) } else {
-                    const query = `INSERT INTO comentarios(comentario,fk_post)values(?,?)`;
-                    conn.query(query, [req.body.comentario, req.body.FkPost], (eror, result) => {
+                    const query = `INSERT INTO comentarios(comentario,fk_post,fk_usuario)values(?,?,?)`;
+                    conn.query(query, [req.body.comentario, req.body.FkPost,req.body.FkUsuario], (eror, result) => {
                         conn.release();
                         if (eror) { return res.status(500).send({ error: eror }) } else {
                             return res.status(200).send({ mensagem: 'comentario criado com sucesso' })
@@ -32,11 +32,13 @@ router.post('/comentar',
 
     })
 // seleciona os comentarios
-router.get('/ver/:FkPost', (req, res, next) => {
-    const id = req.params.FkPost
+router.get('/ver/:limite', (req, res, next) => {
+    const limite = req.params.limite;
+    const numLimite = Number(limite)
+    const id = req.body.FkPost
     mysql.getConnection((err, conn) => {
-        const query = `SELECT comentario,post.note FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post  WHERE comentarios.fk_post = ?`;
-        conn.query(query, [id], (eror, result) => {
+        const query = `SELECT comentario,usuarios.nome FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = ? LIMIT ?`;
+        conn.query(query, [id,numLimite], (eror, result) => {
             conn.release();
             if (eror) {
                 return res.status(500).send({ error: eror })
