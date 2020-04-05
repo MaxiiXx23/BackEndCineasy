@@ -59,6 +59,14 @@ ALTER TABLE films MODIFY COLUMN elenco varchar(200);
 INSERT INTO films (nome,nome_ori,sinopse,foto,classficacao,duracao,trailler,diretor,distribuidor,elenco,pais_ori,status_filme) VAlUES(?,?,?,?,?,?,?,?,?,?,?,?);
 
 UPDATE films SET nome = ?, nome_ori = ?, sinopse = ?, foto = ?,classficacao = ?,duracao = ?,trailler = ?,diretor= ?,distribuidor= ?,elenco = ?,elenco= ?,pais_ori = ?,status_filme = ? WHERE id_films = ? ;
-
-
 delete from generos where id_genero  = 6;
+describe post;
+alter table post drop column data_post;
+ALTER TABLE post
+ADD COLUMN data_post date;
+select * from post;
+delete from post where id_post = 11;
+
+SELECT id_post,nome,note,img,img_post,DATE_FORMAT( data_post, "%d/%m/%Y" ) as data_post,qntLikes,qntComent FROM post where data_post between '2020-04-1' and curdate() LIMIT 3;
+SELECT COUNT(comentario) FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = 13 LIMIT 10;
+SELECT id_comentario, comentario,usuarios.nome,COUNT(comentario) AS qnt_comentario FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = 13 GROUP BY comentario  LIMIT 10;

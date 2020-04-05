@@ -13,6 +13,15 @@ router.post('/comentar',
     [check('comentario').not().isEmpty()],
     (req, res, next) => {
         const ErrValidator = validationResult(req);
+        const data = new Date();
+        const verficarMes = (data.getMonth()+1).toString();
+        //console.log(data.getFullYear()+'/'+(data.getMonth()+1).toString()+'/'+data.getDate())
+        if(verficarMes >=10){
+            dataOficial = data.getFullYear()+'/'+(data.getMonth()+1).toString()+'/'+data.getDate();
+        }else{
+            dataOficial = data.getFullYear()+'/0'+(data.getMonth()+1).toString()+'/'+data.getDate();
+            //console.log(dataOficial)
+        }
         if (!ErrValidator.isEmpty()) {
             return res.status(422).json({ ErrValidator: ErrValidator.array() })
         } else {
@@ -32,20 +41,20 @@ router.post('/comentar',
 
     })
 // seleciona os comentarios
-router.get('/ver/:limite', (req, res, next) => {
+router.get('/ver/:FkPost/:limite', (req, res, next) => {
     const limite = req.params.limite;
     const numLimite = Number(limite)
-    const id = req.body.FkPost
+    const id = req.params.FkPost
     mysql.getConnection((err, conn) => {
-        const query = `SELECT comentario,usuarios.nome FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = ? LIMIT ?`;
+        const query = `SELECT id_comentario, comentario,usuarios.nome FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = ? LIMIT ?`;
         conn.query(query, [id,numLimite], (eror, result) => {
             conn.release();
             if (eror) {
                 return res.status(500).send({ error: eror })
             } else {
-                return res.status(200).send({
+                return res.status(200).send(
                     result
-                })
+                )
             }
         })
     })
