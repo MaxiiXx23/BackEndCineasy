@@ -69,4 +69,8 @@ delete from post where id_post = 11;
 
 SELECT id_post,nome,note,img,img_post,DATE_FORMAT( data_post, "%d/%m/%Y" ) as data_post,qntLikes,qntComent FROM post where data_post between '2020-04-1' and curdate() LIMIT 3;
 SELECT COUNT(comentario) FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = 13 LIMIT 10;
-SELECT id_comentario, comentario,usuarios.nome,COUNT(comentario) AS qnt_comentario FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = 13 GROUP BY comentario  LIMIT 10;
+SELECT id_comentario, comentario,usuarios.nome,post.qntLikes FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = 13  LIMIT 10;
+select qntLikes from post where id_post = 13;
+UPDATE post
+SET qntComent = 0
+WHERE id_post=15;
