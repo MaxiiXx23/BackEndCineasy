@@ -92,6 +92,7 @@ router.post('/', upload.single('img'), (req, res, next) => {
         }
     })
 })
+//Após curir o post a quantidade de likes aumenta +1
 router.put('/like', (req, res, next) => {
     const like = req.body.like
     const id_post = req.body.id_post
@@ -113,6 +114,7 @@ router.put('/like', (req, res, next) => {
         }
     })
 });
+//Após deletar o comentário a quantidade de comentário aumenta +1
 router.put('/qntcoment/', (req, res, next) => {
     const qntcoment = req.body.qntcoment
     const id_post = req.body.id_post
@@ -121,6 +123,28 @@ router.put('/qntcoment/', (req, res, next) => {
             return res.status(404).send({ error: err })
         } else {
             const query = `UPDATE post SET qntComent = (?)+1 WHERE id_post=?;`;
+            conn.query(query, [qntcoment,id_post], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    return res.status(500).send({ error: eror })
+                } else {
+                    return res.status(200).send({
+                        mensagem: "Post comentado com sucessso"
+                    })
+                }
+            })
+        }
+    })
+});
+//Após deletar o comentário a quantidade de comentário diminui -1
+router.put('/qntcomentnova/', (req, res, next) => {
+    const qntcoment = req.body.qntcoment
+    const id_post = req.body.id_post
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(404).send({ error: err })
+        } else {
+            const query = `UPDATE post SET qntComent = (?)-1 WHERE id_post=?;`;
             conn.query(query, [qntcoment,id_post], (eror, result) => {
                 conn.release();
                 if (eror) {
