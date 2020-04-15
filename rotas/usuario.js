@@ -4,9 +4,49 @@ const mysql = require('../models/conexao')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JwtKey = 'Zapzip';
-const multer = require("multer")
 const { check, validationResult } = require('express-validator');
+const nodemailer = require('nodemailer')
+const myValidationResult = validationResult.withDefaults({
+    formatter: (error) => {
+      return {
+        MsgError: error.msg,
+      };
+    }
+  });
+const config = {
+    host: "smtp.gmail.com",
+    secure:false,
+    port: 587,
+    auth: {
+      user: "vidaboaetec@gmail.com",
+      pass: "vidaboa1234567"
+    },
+    tls:{
+        rejectUnauthorized:false
+    }
+}
+const transporter = nodemailer.createTransport(config)
+
 // router.get é o select, router.delete é deletar, router.post é para inserir e router.patch é para atualizar
+router.post('/sendmail', (req, res, next) => {
+    const mensagem = {
+        from:"vidaboaetec@gmail.com",
+        to:"maxuel.barbeiro43@gmail.com",
+        subject:"Olá Maxuel,",
+        text:"Olá max jonatas, aqui é a Cineasy sua conta foi criado com sucesso!"
+    };
+    transporter.sendMail(mensagem,(error,info)=>{
+        if(error){
+            res.status(400).send(
+                error
+            )
+        }else{
+            res.status(200).send({
+                mensagem: 'Email enviado'
+            })
+        }
+    })
+});
 
 router.get('/', (req, res, next) => {
     res.status(200).send({
@@ -15,9 +55,15 @@ router.get('/', (req, res, next) => {
 });
 // rota de cadastro
 router.post('/', [
-    check('email').isEmail()
+    check('email').isEmail().withMessage('Email inválido'),
+    check('senha').not().isEmpty(),
+    check('nome').not().isEmpty(),
+    check('telefone').isMobilePhone(['pt-BR'])
 ], (req, res, next) => {
-    const ErrValidator = validationResult(req);
+    const ErrValidator = myValidationResult(req);
+    const email = req.body.email;
+    const nome = req.body.nome;
+    const telefone = req.body.telefone;
     if (!ErrValidator.isEmpty()) {
         return res.status(422).json({ ErrValidator: ErrValidator.array() })
     } else {
@@ -25,8 +71,8 @@ router.post('/', [
             if (err) { return res.status(500).send({ error: err }) }
             bcrypt.hash(req.body.senha, 5, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
-                conn.query(`INSERT INTO usuarios(email,senha)values(?,?)`,
-                    [req.body.email, hash],
+                conn.query(`INSERT INTO usuarios(email,nome,telefone,senha)values(?,?,?,?)`,
+                    [email,nome,telefone, hash],
                     (eror, results) => {
                         conn.release();
                         if (eror) { return res.status(500).send({ error: eror }) } else {
@@ -72,15 +118,6 @@ router.post('/login', (req, res, next) => {
     })
 })
 // caminho da pasta para upload das foto de perfil
-const storage = multer.diskStorage({
-    destination: (req, res, cb) => {
-        cb(null, 'public/fotoperfl/')
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname)
-    }
-})
-const upload = multer({ storage })
 
 router.get('/dados/:id_user', (req, res, next) => {
     const id = req.params.id_user

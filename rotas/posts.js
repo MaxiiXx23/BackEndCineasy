@@ -33,7 +33,7 @@ router.get('/ver/:limite', (req, res, next) => {
             return res.status(500).send({ error: err })
         } else {
             // res.status(200).send({mensagem:"conexao realizada"})
-            const query = `SELECT id_post,nome,note,img,img_post,DATE_FORMAT( data_post, "%d/%m/%Y" ) as data_post,qntLikes,qntComent FROM post WHERE data_post between '${dataBetween}' and curdate() LIMIT ?`;
+            const query = `SELECT id_post,nome,note,img,img_post,tipo_file,DATE_FORMAT( data_post, "%d/%m/%Y" ) as data_post,qntLikes,qntComent FROM post WHERE data_post between '${dataBetween}' and curdate() LIMIT ?`;
             conn.query(query, [numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -61,8 +61,7 @@ const upload = multer({ storage })
 router.post('/', upload.single('img'), (req, res, next) => {
     const data = new Date();
     const verficarMes = (data.getMonth() + 1).toString();
-    
-    //console.log(data.getFullYear()+'/'+(data.getMonth()+1).toString()+'/'+data.getDate())
+    //console.log(req.file)
     if (verficarMes >= 10) {
         dataOficial = data.getFullYear() + '/' + (data.getMonth() + 1).toString() + '/' + data.getDate();
     } else {
@@ -71,6 +70,7 @@ router.post('/', upload.single('img'), (req, res, next) => {
     }
     const note = req.body.note;
     const img_post = req.file.filename;
+    const tipo_file = req.file.mimetype;
     const fk_usuario = req.body.fk_usuario;
     const qntLikes = 0;
     const qntComent = 0;
@@ -78,8 +78,8 @@ router.post('/', upload.single('img'), (req, res, next) => {
         if (err) {
             return res.status(404).send({ error: err })
         } else {
-            const query = `INSERT INTO post(note,img_post,qntLikes,qntComent,data_post,fk_usuario)values(?,?,?,?,?,?)`;
-            conn.query(query, [note, img_post,qntLikes,qntComent, dataOficial, fk_usuario], (eror, result) => {
+            const query = `INSERT INTO post(note,img_post,qntLikes,tipo_file,qntComent,data_post,fk_usuario)values(?,?,?,?,?,?,?)`;
+            conn.query(query, [note, img_post,qntLikes,tipo_file,qntComent, dataOficial, fk_usuario], (eror, result) => {
                 conn.release();
                 if (eror) {
                     return res.status(500).send({ error: eror })
@@ -122,7 +122,7 @@ router.put('/qntcoment/', (req, res, next) => {
         if (err) {
             return res.status(404).send({ error: err })
         } else {
-            const query = `UPDATE post SET qntComent = (?)+1 WHERE id_post=?;`;
+            const query = `UPDATE post SET qntComent = (?)+1 WHERE id_post=?`;
             conn.query(query, [qntcoment,id_post], (eror, result) => {
                 conn.release();
                 if (eror) {
