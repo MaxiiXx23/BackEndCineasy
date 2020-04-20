@@ -3,46 +3,114 @@ const router = express.Router();
 const mysql = require('../models/conexao')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const JwtKey = 'Zapzip';
 const { check, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer')
+const hbs = require('nodemailer-express-handlebars');
 const myValidationResult = validationResult.withDefaults({
     formatter: (error) => {
-      return {
-        MsgError: error.msg,
-      };
+        return {
+            MsgError: error.msg,
+        };
     }
-  });
+});
 const config = {
     host: "smtp.gmail.com",
-    secure:false,
+    secure: false,
     port: 587,
     auth: {
-      user: "vidaboaetec@gmail.com",
-      pass: "vidaboa1234567"
+        user: "vidaboaetec@gmail.com",
+        pass: "vidaboa1234567"
     },
-    tls:{
-        rejectUnauthorized:false
+    tls: {
+        rejectUnauthorized: false
     }
 }
 const transporter = nodemailer.createTransport(config)
+transporter.use('compile', hbs({
+    viewEngine: {
+        extName: '.hbs',
+        partialsDir: './view/',
+        layoutsDir: './view/',
+        defaultLayout: undefined,
+    },
+    viewPath: './view/'
+}));
 
 // router.get é o select, router.delete é deletar, router.post é para inserir e router.patch é para atualizar
-router.post('/sendmail', (req, res, next) => {
+router.put('/updatepass', (req, res) => {
+    const email = req.body.email;
+    const nome = req.body.nome;
+    const newPass = crypto.randomBytes(5).toString('hex')
+
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            bcrypt.hash(newPass, 10, (errBcrypt, hash) => {
+                if (errBcrypt) {
+                    return res.status(500).send({ error: errBcrypt })
+                } else {
+                    const query = `UPDATE usuarios SET senha=? WHERE email =?`;
+                    conn.query(query, [hash, email], (eror, results) => {
+                        conn.release();
+                        if (eror) {
+                            return res.status(500).send({ eror, mensagem: 'error' })
+                        } else {
+                            const mensagem = {
+                                from: "vidaboaetec@gmail.com",
+                                to: email,
+                                subject: "Olá " + nome + ",redefinição de senha do app Cineasy",
+                                template: 'emailrecupera',
+                                context: {
+                                    Email: email,
+                                    Nome: nome,
+                                    Senha: newPass
+                                }
+                            };
+                            transporter.sendMail(mensagem, (error, info) => {
+                                if (error) {
+                                    res.status(400).send(
+                                        error
+                                    )
+                                } else {
+                                    res.status(200).send({
+                                        mensagem: 'Senha redefinida com sucesso'
+                                    })
+                                }
+                            })
+
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
+router.post('/sendpass', (req, res, next) => {
+    const email = req.body.email;
+    const nome = 'Max Jonatas';
+    const newPass = crypto.randomBytes(5).toString('hex')
     const mensagem = {
-        from:"vidaboaetec@gmail.com",
-        to:"maxuel.barbeiro43@gmail.com",
-        subject:"Olá Maxuel,",
-        text:"Olá max jonatas, aqui é a Cineasy sua conta foi criado com sucesso!"
+        from: "vidaboaetec@gmail.com",
+        to: email,
+        subject: "Olá " + nome + ",redefinição de senha do app Cineasy",
+        template: 'emailrecupera',
+        context: {
+            Email: email,
+            Nome: nome,
+            Senha: newPass
+        }
     };
-    transporter.sendMail(mensagem,(error,info)=>{
-        if(error){
+    transporter.sendMail(mensagem, (error, info) => {
+        if (error) {
             res.status(400).send(
                 error
             )
-        }else{
+        } else {
             res.status(200).send({
-                mensagem: 'Email enviado'
+                mensagem: 'Nova senha enviada com sucesso.'
             })
         }
     })
@@ -56,27 +124,48 @@ router.get('/', (req, res, next) => {
 // rota de cadastro
 router.post('/', [
     check('email').isEmail().withMessage('Email inválido'),
-    check('senha').not().isEmpty(),
+    check('senha').not().isEmpty().isLength({ min: 8, max: 14 }).withMessage('Senha inválida'),
     check('nome').not().isEmpty(),
-    check('telefone').isMobilePhone(['pt-BR'])
+    check('telefone').isMobilePhone(['pt-BR']).withMessage('Número inválido')
 ], (req, res, next) => {
     const ErrValidator = myValidationResult(req);
     const email = req.body.email;
     const nome = req.body.nome;
     const telefone = req.body.telefone;
     if (!ErrValidator.isEmpty()) {
-        return res.status(422).json({ ErrValidator: ErrValidator.array() })
+        return res.status(422).json({ ErrValidator: ErrValidator.array(), mensagem: 'error validator' })
     } else {
         mysql.getConnection((err, conn) => {
             if (err) { return res.status(500).send({ error: err }) }
-            bcrypt.hash(req.body.senha, 5, (errBcrypt, hash) => {
+            bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
                 conn.query(`INSERT INTO usuarios(email,nome,telefone,senha)values(?,?,?,?)`,
-                    [email,nome,telefone, hash],
+                    [email, nome, telefone, hash],
                     (eror, results) => {
+
                         conn.release();
-                        if (eror) { return res.status(500).send({ error: eror }) } else {
-                            return res.status(200).send({ mensagem: 'Usuário criado com sucesso' })
+                        if (eror) {
+                            return res.status(500).send({ eror, mensagem: 'error' })
+                        } else {
+                            const mensagem = {
+                                from: "vidaboaetec@gmail.com",
+                                to: email,
+                                subject: "Olá " + nome + ",o cadastro em nosso app foi feita com sucesso",
+                                template: 'emailcadastro',
+                            };
+                            transporter.sendMail(mensagem, (error, info) => {
+                                if (error) {
+                                    res.status(400).send(
+                                        error
+                                    )
+                                } else {
+                                    res.status(200).send({
+                                        mensagem: 'Usuário criado com sucesso'
+                                    })
+                                }
+                            })
+
+
                         }
                         // retornar o RESULTS para tirar o loop infinito
                     }
@@ -129,9 +218,9 @@ router.get('/dados/:id_user', (req, res, next) => {
             const query = `select nome, fotoUser,capaUser,frase,capaUser from usuarios where id_user= ?`;
             conn.query(query, [numId], (eror, result) => {
                 conn.release();
-                if(eror){
+                if (eror) {
                     return res.status(500).send({ error: eror })
-                }else{
+                } else {
                     return res.status(200).send(
                         result
                     )

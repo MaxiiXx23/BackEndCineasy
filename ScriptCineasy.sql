@@ -74,3 +74,10 @@ select qntLikes from post where id_post = 13;
 UPDATE post
 SET qntComent = 0
 WHERE id_post=15;
+delete from usuarios where id_user = 46;
+select * from usuarios;
+select senha from usuarios where id_user = 47;
+describe usuarios;
+UPDATE usuarios
+SET senha = 'maxPuch.jpg'
+WHERE id_user=11;

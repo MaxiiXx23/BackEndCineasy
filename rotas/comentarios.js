@@ -46,7 +46,7 @@ router.get('/ver/:FkPost/:limite', (req, res, next) => {
     const numLimite = Number(limite)
     const id = req.params.FkPost
     mysql.getConnection((err, conn) => {
-        const query = `SELECT id_comentario, comentario,usuarios.nome, usuarios.id_user FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = ? LIMIT ?`;
+        const query = `SELECT id_comentario, comentario,usuarios.nome,usuarios.fotouser, usuarios.id_user FROM comentarios INNER JOIN post ON post.id_post = comentarios.fk_post INNER JOIN usuarios ON usuarios.id_user = comentarios.fk_usuario WHERE comentarios.fk_post = ? LIMIT ?`;
         conn.query(query, [id,numLimite], (eror, result) => {
             conn.release();
             if (eror) {
