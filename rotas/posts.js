@@ -7,8 +7,8 @@ const { check, validationResult } = require('express-validator');
 const multer = require("multer")
 
 router.get('/', (req, res, next) => {
-
-    res.render('../view/home')
+    return res.status(200).send('Rota post sendo usada')
+    //res.render('../view/home')
 });
 // lista as postagens, ainda falta arrumar com WHERE com a data da postagem para pegar as postagens mais recentes
 router.get('/ver/:limite', (req, res, next) => {

@@ -8,6 +8,7 @@ const JwtKey = 'Zapzip';
 const { check, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer')
 const hbs = require('nodemailer-express-handlebars');
+const multer = require("multer")
 const myValidationResult = validationResult.withDefaults({
     formatter: (error) => {
         return {
@@ -41,7 +42,6 @@ transporter.use('compile', hbs({
 // router.get é o select, router.delete é deletar, router.post é para inserir e router.patch é para atualizar
 router.put('/updatepass', (req, res) => {
     const email = req.body.email;
-    const nome = req.body.nome;
     const newPass = crypto.randomBytes(5).toString('hex')
 
     mysql.getConnection((err, conn) => {
@@ -61,18 +61,17 @@ router.put('/updatepass', (req, res) => {
                             const mensagem = {
                                 from: "vidaboaetec@gmail.com",
                                 to: email,
-                                subject: "Olá " + nome + ",redefinição de senha do app Cineasy",
+                                subject: "Olá somos a Cineasy,solicitação de redefinição de senha do app Cineasy",
                                 template: 'emailrecupera',
                                 context: {
                                     Email: email,
-                                    Nome: nome,
                                     Senha: newPass
                                 }
                             };
                             transporter.sendMail(mensagem, (error, info) => {
                                 if (error) {
                                     res.status(400).send(
-                                        error
+                                        error,
                                     )
                                 } else {
                                     res.status(200).send({
@@ -224,6 +223,78 @@ router.get('/dados/:id_user', (req, res, next) => {
                     return res.status(200).send(
                         result
                     )
+                }
+            })
+        }
+    })
+})
+// editar perfil
+const storage = multer.diskStorage({
+    destination: (req, res, cb) => {
+        cb(null, 'public/fotoperfil/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname)
+    }
+})
+const upload = multer({ storage })
+
+
+router.put('/uploadperfil/:id', upload.single('fileData'), (req, res, next) => {
+    const fotoperfil = req.file.filename;
+    const idUser = req.params.id;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `UPDATE usuarios SET fotouser = ? WHERE id_user=?`
+            conn.query(query, [fotoperfil,idUser], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    console.log(eror)
+                } else {
+                    return res.status(500).send({ mensagem: 'Ok' })
+                }
+            })
+        }
+    })
+})
+router.put('/uploadcapa/:id', upload.single('fileCapa'), (req, res, next) => {
+    const fotocapa = req.file.filename;
+    const idUser = req.params.id;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `UPDATE usuarios SET capauser = ? WHERE id_user=?`
+            conn.query(query, [fotocapa,idUser], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    console.log(eror)
+                } else {
+                    return res.status(500).send({ mensagem: 'Ok' })
+                }
+            })
+        }
+    })
+})
+// editar dados de perfil 
+router.put('/editadados/:id', (req, res, next) => {
+    const idUser = req.params.id;
+    const nome = req.body.nome;
+    const frase = req.body.fras;
+    const telefone = req.body.telefone;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `UPDATE usuarios SET nome = ?,frase = ?, telefone = ? WHERE id_user=?`
+            conn.query(query, [fotocapa,idUser], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    console.log(eror)
+                } else {
+                    return res.status(500).send({ mensagem: 'Ok' })
                 }
             })
         }
