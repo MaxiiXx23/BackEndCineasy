@@ -214,7 +214,7 @@ router.get('/dados/:id_user', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select nome, fotoUser,capaUser,frase,capaUser from usuarios where id_user= ?`;
+            const query = `select nome, fotoUser,capaUser,frase,capaUser,telefone from usuarios where id_user= ?`;
             conn.query(query, [numId], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -253,7 +253,7 @@ router.put('/uploadperfil/:id', upload.single('fileData'), (req, res, next) => {
                 if (eror) {
                     console.log(eror)
                 } else {
-                    return res.status(500).send({ mensagem: 'Ok' })
+                    return res.status(200).send({ mensagem: 'Ok' })
                 }
             })
         }
@@ -272,7 +272,7 @@ router.put('/uploadcapa/:id', upload.single('fileCapa'), (req, res, next) => {
                 if (eror) {
                     console.log(eror)
                 } else {
-                    return res.status(500).send({ mensagem: 'Ok' })
+                    return res.status(200).send({ mensagem: 'Ok' })
                 }
             })
         }
@@ -282,22 +282,87 @@ router.put('/uploadcapa/:id', upload.single('fileCapa'), (req, res, next) => {
 router.put('/editadados/:id', (req, res, next) => {
     const idUser = req.params.id;
     const nome = req.body.nome;
-    const frase = req.body.fras;
-    const telefone = req.body.telefone;
+    const frase = req.body.frase;
     mysql.getConnection((err, conn) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `UPDATE usuarios SET nome = ?,frase = ?, telefone = ? WHERE id_user=?`
-            conn.query(query, [fotocapa,idUser], (eror, result) => {
+            const query = `UPDATE usuarios SET nome = ?,frase = ? WHERE id_user=?`
+            conn.query(query, [nome,frase,idUser], (eror, result) => {
                 conn.release();
                 if (eror) {
-                    console.log(eror)
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'error' })
                 } else {
-                    return res.status(500).send({ mensagem: 'Ok' })
+                    return res.status(200).send({ mensagem: 'Ok' })
                 }
             })
         }
     })
 })
+// buscar usuarios
+router.get('/buscarusuarios/', (req, res, next) => {
+    const nome = req.body.nome;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select nome, fotouser FROM usuarios WHERE nome LIKE "%${nome}%"`
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+
+// solocitação de amizade
+router.post('/adicionaramigos/:id', (req, res, next) => {
+    const idUser = req.params.id;
+    const solicitado = req.body.idSolicitado;
+    const situacao = 'p'; // (P Pendente, A aprovada R Rejeitada)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            // a id_solicitado e id_solicitante devem ser foregery keys N:N para retornar os valores corretos
+            const query = `INSERT INTO  amigos (id_solicitante,id_solicitado,situacao) VALUES (?,?,?)`;
+            conn.query(query,[idUser,solicitado,situacao], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    console.log(eror)
+                    //return res.status(500).send({ erro: eror })
+                } else {
+                    return res.status(200).send({mensagem: 'Solicitação de amizada enviada'})
+                }
+            })
+        }
+    })
+})
+//lista de amigos
+router.get('/listaramigos/:id', (req, res, next) => {
+    const idUser = req.params.id;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select usuarios.nome,usuarios.fotoUser From amigos inner join usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") where amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}`;
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+
 module.exports = router;

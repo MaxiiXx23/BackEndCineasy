@@ -81,3 +81,20 @@ describe usuarios;
 UPDATE usuarios
 SET senha = 'maxPuch.jpg'
 WHERE id_user=11;
+
+describe amigos;
+ALTER TABLE amigos ADD FOREIGN KEY(id_solicitante) REFERENCES usuarios(id_user);
+ALTER TABLE amigos ADD FOREIGN KEY(id_solicitado) REFERENCES usuarios(id_user);
+drop table amigos;
+create table amigos(
+	id_amigos int auto_increment primary key,
+    id_solicitante int,
+    id_solicitado int,
+    situacao char(1)
+);
+select * from usuarios;
+select usuarios.nome,
+       usuarios.fotoUser
+From amigos inner join usuarios
+On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "50") OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "50")
+where amigos.id_solicitante = 50 OR amigos.id_solicitado=50 ;
