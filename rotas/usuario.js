@@ -130,6 +130,7 @@ router.post('/', [
     const ErrValidator = myValidationResult(req);
     const email = req.body.email;
     const nome = req.body.nome;
+    const fotoUser = 'avatarperfil.png'
     const telefone = req.body.telefone;
     if (!ErrValidator.isEmpty()) {
         return res.status(422).json({ ErrValidator: ErrValidator.array(), mensagem: 'error validator' })
@@ -138,8 +139,8 @@ router.post('/', [
             if (err) { return res.status(500).send({ error: err }) }
             bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
-                conn.query(`INSERT INTO usuarios(email,nome,telefone,senha)values(?,?,?,?)`,
-                    [email, nome, telefone, hash],
+                conn.query(`INSERT INTO usuarios(email,nome,fotoUser,telefone,senha)values(?,?,?,?)`,
+                    [email, nome,fotoUser, telefone, hash],
                     (eror, results) => {
 
                         conn.release();
@@ -301,18 +302,18 @@ router.put('/editadados/:id', (req, res, next) => {
     })
 })
 // buscar usuarios
-router.get('/buscarusuarios/', (req, res, next) => {
-    const nome = req.body.nome;
+router.get('/buscarusuarios/:nome', (req, res, next) => {
+    const nome = req.params.nome;
     mysql.getConnection((err, conn) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select nome, fotouser FROM usuarios WHERE nome LIKE "%${nome}%"`
+            const query = `select id_user,nome, fotouser FROM usuarios WHERE nome LIKE "%${nome}%"`
             conn.query(query, (eror, result) => {
                 conn.release();
                 if (eror) {
                     //console.log(eror)
-                    return res.status(500).send({ erro: eror })
+                    return res.status(500).send({ mensagem: 'Erro' })
                 } else {
                     return res.status(200).send(result)
                 }
@@ -351,7 +352,7 @@ router.get('/listaramigos/:id', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select usuarios.nome,usuarios.fotoUser From amigos inner join usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") where amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}`;
+            const query = `select amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser From amigos inner join usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") where amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}`;
             conn.query(query, (eror, result) => {
                 conn.release();
                 if (eror) {
