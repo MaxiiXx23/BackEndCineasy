@@ -326,6 +326,7 @@ router.get('/buscarusuarios/:nome', (req, res, next) => {
 router.post('/adicionaramigos/:id', (req, res, next) => {
     const idUser = req.params.id;
     const solicitado = req.body.idSolicitado;
+    console.log(solicitado)
     const situacao = 'p'; // (P Pendente, A aprovada R Rejeitada)
     mysql.getConnection((err, conn) => {
         if (err) {
@@ -352,7 +353,11 @@ router.get('/listaramigos/:id', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser From amigos inner join usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") where amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}`;
+            const query = `select amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser 
+            From amigos inner join 
+            usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") 
+            OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") 
+            where (amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}) and situacao = 'a'`;
             conn.query(query, (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -360,6 +365,34 @@ router.get('/listaramigos/:id', (req, res, next) => {
                     return res.status(500).send({ erro: eror })
                 } else {
                     return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+// verifica se o usuário seleciona já são amigos ou não
+router.get('/verificaamizade/:id/:idverifica', (req, res, next) => {
+    const idUser = req.params.id;
+    const idVerifica = req.params.idverifica;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `SELECT * 
+            FROM amigos 
+            WHERE 
+            ((id_solicitante = ${idUser} and id_solicitado = ${idVerifica}) or (id_solicitante = ${idVerifica} and id_solicitado = ${idUser} )) and situacao = 'a'`;
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else if(result.length === 0){
+                    // 0 == não são amigos
+                    return res.status(200).send({mensagem:'0'})
+                }else{
+                    // 1 são amigos 
+                    return res.status(200).send({mensagem:'1'})
                 }
             })
         }

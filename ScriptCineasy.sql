@@ -95,12 +95,20 @@ create table amigos(
 select * from amigos;
 select
 amigos.id_amigos, 
+usuarios.id_user,
 usuarios.nome,
        usuarios.fotoUser
 From amigos inner join usuarios
-On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "50") OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "50")
-where (amigos.id_solicitante = 50 OR amigos.id_solicitado=50) and situacao = 'a';
-
+On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "51") OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "51")
+where ((amigos.id_solicitante = 51 and amigos.id_solicitado=51) or (amigos.id_solicitado = 51 and amigos.id_solicitante="51"))  and situacao = 'a';
+SELECT * 
+FROM amigos 
+WHERE 
+  ((id_solicitante = 50 and id_solicitado = 49) or (id_solicitante = 51 and id_solicitado = 49 )) and situacao = 'p';
+  SELECT * 
+FROM amigos 
+WHERE 
+  id_solicitante = 50 and situacao = 'a';
 UPDATE amigos
-SET situacao='a'
-WHERE id_amigos = 1;
+SET situacao='p'
+WHERE id_amigos = 10;
