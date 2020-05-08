@@ -370,6 +370,29 @@ router.get('/listaramigos/:id', (req, res, next) => {
         }
     })
 })
+router.get('/listarpendentes/:id', (req, res, next) => {
+    const idUser = req.params.id;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select DISTINCT amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser 
+            From amigos inner join 
+            usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") 
+            OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") 
+            where (amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}) and situacao = 'p'`;
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
 // verifica se o usuário seleciona já são amigos ou não
 router.get('/verificaamizade/:id/:idverifica', (req, res, next) => {
     const idUser = req.params.id;
@@ -381,18 +404,27 @@ router.get('/verificaamizade/:id/:idverifica', (req, res, next) => {
             const query = `SELECT * 
             FROM amigos 
             WHERE 
-            ((id_solicitante = ${idUser} and id_solicitado = ${idVerifica}) or (id_solicitante = ${idVerifica} and id_solicitado = ${idUser} )) and situacao = 'a'`;
+            ((id_solicitante = ${idUser} and id_solicitado = ${idVerifica}) or (id_solicitante = ${idVerifica} and id_solicitado = ${idUser} ))`;
             conn.query(query, (eror, result) => {
                 conn.release();
+                //console.log(result[0].situacao)
                 if (eror) {
                     //console.log(eror)
                     return res.status(500).send({ erro: eror })
-                } else if(result.length === 0){
-                    // 0 == não são amigos
-                    return res.status(200).send({mensagem:'0'})
+                }else if(result){
+                    if(result.length === 0){
+                        // 0 == não são amigos
+                        return res.status(200).send({mensagem:'0'})
+                    }else if(result[0].situacao == 'a'){
+                        // 1 são amigos 
+                        //console.log(result)
+                        return res.status(200).send({mensagem:'1'})
+                    }else if((result[0].situacao == 'p')){
+                        // 2 solocitação pendente
+                        return res.status(200).send({mensagem:'2'})
+                    }
                 }else{
-                    // 1 são amigos 
-                    return res.status(200).send({mensagem:'1'})
+                    return res.status(200).send({mensagem:'erro, não há array'})
                 }
             })
         }
