@@ -380,7 +380,7 @@ router.get('/listarpendentes/:id', (req, res, next) => {
             From amigos inner join 
             usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") 
             OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") 
-            where (amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}) and situacao = 'p'`;
+            where amigos.id_solicitado=${idUser} and situacao = 'p'`;
             conn.query(query, (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -425,6 +425,48 @@ router.get('/verificaamizade/:id/:idverifica', (req, res, next) => {
                     }
                 }else{
                     return res.status(200).send({mensagem:'erro, não há array'})
+                }
+            })
+        }
+    })
+})
+router.delete('/excluiramigos/:id_amigos', (req, res, next) => {
+    const id_amigos = req.params.id_amigos;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `DELETE FROM amigos WHERE id_amigos=?`;
+            conn.query(query,[id_amigos], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    // Amigos excluido retorna 1
+                    return res.status(200).send({mensagem:'1'})
+                }
+            })
+        }
+    })
+})
+router.put('/confirmaramizade/:id_amigos', (req, res, next) => {
+    const id_amigos = req.params.id_amigos;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `UPDATE amigos
+            SET situacao='a'
+            WHERE id_amigos = ${id_amigos}`;
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    // Aceitou a solicitação de amizades retorna 1
+                    return res.status(200).send({mensagem:'1'})
                 }
             })
         }

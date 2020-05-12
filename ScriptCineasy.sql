@@ -112,3 +112,10 @@ WHERE
 UPDATE amigos
 SET situacao='p'
 WHERE id_amigos = 10;
+
+DELETE FROM amigos WHERE id_amigos=12;
+select * from amigos;
+SELECT * 
+FROM amigos 
+WHERE 
+  id_solicitado = 47 and situacao= 'p';
