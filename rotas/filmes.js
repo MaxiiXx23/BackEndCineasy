@@ -49,6 +49,75 @@ router.get('/films/:limit', (req, res, next) => {
         }
     })
 })
+router.get('/listaemcartaz/:limit', (req, res, next) => {
+    const limite = req.params.limit;
+    const numLimite = Number(limite);
+    //console.log(numLimite)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            res.status(404).send({
+                memsagem: "Conexão com o bau não realizada"
+            })
+        } else {
+
+            const query = `SELECT id_films,nome,foto,status_filme FROM films where status_filme = 1 LIMIT ?`;
+            conn.query(query,[numLimite], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    res.status(404).send({ mensagem: "Error ao executar a Query" })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+router.get('/listaestreia/:limit', (req, res, next) => {
+    const limite = req.params.limit;
+    const numLimite = Number(limite);
+    //console.log(numLimite)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            res.status(404).send({
+                memsagem: "Conexão com o bau não realizada"
+            })
+        } else {
+
+            const query = `SELECT id_films,nome,foto,status_filme FROM films where status_filme = 3 LIMIT ?`;
+            conn.query(query,[numLimite], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    res.status(404).send({ mensagem: "Error ao executar a Query" })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+router.get('/listaemalta/:limit', (req, res, next) => {
+    const limite = req.params.limit;
+    const numLimite = Number(limite);
+    //console.log(numLimite)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            res.status(404).send({
+                memsagem: "Conexão com o bau não realizada"
+            })
+        } else {
+
+            const query = `SELECT id_films,nome,foto,status_filme FROM films where status_filme = 2 LIMIT ?`;
+            conn.query(query,[numLimite], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    res.status(404).send({ mensagem: "Error ao executar a Query" })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
 //Rota App: traz os detalhes dos filmes de acordo com o Id dele
 router.get('/detalhes/:id', (req, res, next) => {
     const limite = req.params.id;
@@ -85,6 +154,7 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage })
 //Rota de inserção de filme com upload de imagem
+// status filme : 1 EM CARTAZ; 2 EM ALTA, 3 ESTREIA, 4 Fora das bilheterias
 router.post('/', upload.single('img'), (req, res, next) => {
     let generoArray = req.body.genero;
     if (Array.isArray(generoArray)) {
