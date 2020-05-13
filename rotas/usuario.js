@@ -22,7 +22,7 @@ const config = {
     port: 587,
     auth: {
         user: "vidaboaetec@gmail.com",
-        pass: "vidaboa1234567"
+        pass: "hppi7u6G"
     },
     tls: {
         rejectUnauthorized: false
@@ -139,7 +139,7 @@ router.post('/', [
             if (err) { return res.status(500).send({ error: err }) }
             bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
-                conn.query(`INSERT INTO usuarios(email,nome,fotoUser,telefone,senha)values(?,?,?,?)`,
+                conn.query(`INSERT INTO usuarios(email,nome,fotoUser,telefone,senha)values(?,?,?,?,?)`,
                     [email, nome,fotoUser, telefone, hash],
                     (eror, results) => {
 

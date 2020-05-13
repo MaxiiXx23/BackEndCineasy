@@ -16,10 +16,11 @@ router.get('/', (req, res, next) => {
         mensagem: 'Usando a rota de pagamento'
     })
 });
-router.post('/dados', [check('NumberCard').isCreditCard(),
-    check('nomeFull').not().isEmpty(), check('codCard').isLength({ min: 3, max: 3 }),
-    check('cpf').isLength({ min: 14, max: 14 }),
-    check('data').contains('/')],
+router.post('/ckeckdados', [check('NumberCard').isCreditCard().withMessage('Number card fail'),
+    check('nomeFull').not().isEmpty().withMessage('Nome vazio'),
+    check('codCard').isLength({ min: 3, max: 3 }).withMessage('cod invalido'),
+    check('cpf').isLength({ min: 14, max: 14 }).withMessage('cpf invalido'),
+    check('data_vencim').contains('/').withMessage('data card invalido')],
     (req, res, next) => {
         const ErrValidator = validationResult(req);
 
