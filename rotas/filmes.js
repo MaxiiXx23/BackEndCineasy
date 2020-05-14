@@ -275,8 +275,26 @@ router.delete('/deletar', (req, res, next) => {
         })
     })
 })
-
-
+//bucar filmes
+router.get('/buscarfilmes/:nome', (req, res, next) => {
+    const filme = req.params.nome;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select id_films,nome, foto,status_filme FROM films WHERE nome LIKE "%${filme}%"`
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
 
 
 module.exports = router;
