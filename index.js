@@ -13,9 +13,9 @@ app.use(express.static('public'));
 
 
 // ejs para testar o ulpload
-//app.set('view engine', 'ejs')
-app.engine('handlebars', exphbs());
-app.set('view engine', 'handlebars');
+app.set('view engine', 'ejs')
+//app.engine('handlebars', exphbs());
+//app.set('view engine', 'handlebars');
 
 const RotaUsuario = require('./rotas/usuario');
 const RotaComentario = require('./rotas/comentarios');

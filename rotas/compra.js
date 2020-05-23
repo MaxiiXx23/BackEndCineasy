@@ -45,5 +45,16 @@ router.post('/pagamento',
             mensagem: 'Pagamento aceito'
         })
     });
-
+router.get('/sessao', (req, res, next) => {
+    res.render('../view/sessao')
+});
+router.get('/checkout', (req, res, next) => {
+    res.render('../view/checkout')
+});
+router.post('/escolheassento', (req, res, next) => {
+    // nos values passar o assento e o numero 
+     poltronaArray = req.body.poltronasSelecionadas;
+    console.log('Protronas no servidor: '+poltronaArray)
+    res.redirect('checkout')
+});
 module.exports = router;

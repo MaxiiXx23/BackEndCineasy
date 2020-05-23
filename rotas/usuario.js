@@ -87,7 +87,54 @@ router.put('/updatepass', (req, res) => {
         }
     })
 })
-router.post('/sendpass', (req, res, next) => {
+router.put('/editapass', (req, res) => {
+    const email = req.body.email;
+    const newPass = req.body.newsenha
+
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            bcrypt.hash(newPass, 10, (errBcrypt, hash) => {
+                if (errBcrypt) {
+                    return res.status(500).send({ error: errBcrypt })
+                } else {
+                    const query = `UPDATE usuarios SET senha=? WHERE email =?`;
+                    conn.query(query, [hash, email], (eror, results) => {
+                        conn.release();
+                        if (eror) {
+                            return res.status(500).send({ eror, mensagem: 'error' })
+                        } else {
+                            const mensagem = {
+                                from: "vidaboaetec@gmail.com",
+                                to: email,
+                                subject: "Olá somos a Cineasy, você redefiniu sua senha do app Cineasy",
+                                template: 'emailrecupera',
+                                context: {
+                                    Email: email,
+                                    Senha: newPass
+                                }
+                            };
+                            transporter.sendMail(mensagem, (error, info) => {
+                                if (error) {
+                                    res.status(400).send(
+                                        error,
+                                    )
+                                } else {
+                                    res.status(200).send({
+                                        mensagem: 'Senha redefinida com sucesso'
+                                    })
+                                }
+                            })
+
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
+/*router.post('/sendpass', (req, res, next) => {
     const email = req.body.email;
     const nome = 'Max Jonatas';
     const newPass = crypto.randomBytes(5).toString('hex')
@@ -113,7 +160,7 @@ router.post('/sendpass', (req, res, next) => {
             })
         }
     })
-});
+});*/
 
 router.get('/', (req, res, next) => {
     res.status(200).send({

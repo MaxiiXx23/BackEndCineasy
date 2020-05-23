@@ -1,0 +1,25 @@
+.titlePag{
+    color: #FFD700;
+    font-weight: bold;
+}
+.title{
+    color: #FFD700;
+}
+.backgroundContainer{
+    background-color: black !important;
+}
+.divBtn{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center
+}
+.spacingCard{
+    margin-bottom: 10px;
+}
+a.spacingIcone{
+    color: #FFD700;
+}
+a.spacingIcone:{
+    color: #FFD700;
+}
