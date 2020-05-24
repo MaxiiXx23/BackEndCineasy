@@ -37,7 +37,7 @@ router.get('/films/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme FROM films LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films LIMIT ?`;
             conn.query(query, [numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -60,7 +60,7 @@ router.get('/listaemcartaz/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme FROM films where status_filme = 1 LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films where status_filme = 1 LIMIT ?`;
             conn.query(query,[numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -83,7 +83,7 @@ router.get('/listaestreia/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme FROM films where status_filme = 3 LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films where status_filme = 3 LIMIT ?`;
             conn.query(query,[numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -106,7 +106,7 @@ router.get('/listaemalta/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme FROM films where status_filme = 2 LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films where status_filme = 2 LIMIT ?`;
             conn.query(query,[numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -143,7 +143,7 @@ router.get('/detalhes/:id', (req, res, next) => {
         }
     })
 })
-//multer 
+//multer
 const storage = multer.diskStorage({
     destination: (req, res, cb) => {
         cb(null, 'public/filmes/poster')
