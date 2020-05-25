@@ -221,7 +221,7 @@ router.post('/', [
         })
     }
 });
-// login com jwt 
+// login com jwt
 router.post('/login', (req, res, next) => {
     mysql.getConnection((error, conn) => {
         if (error) { return res.status(500).send({ error: error }) }
@@ -245,7 +245,8 @@ router.post('/login', (req, res, next) => {
                     })
                     return res.status(200).send({
                         mensagem: 'Login feito com sucesso!',
-                        token, id: results[0].id_user
+                        token, id: results[0].id_user,
+                        nome: results[0].nome
                     })
                 }
                 return res.status(401).send({ mensagem: 'Falha na autenticação' })
@@ -326,7 +327,7 @@ router.put('/uploadcapa/:id', upload.single('fileCapa'), (req, res, next) => {
         }
     })
 })
-// editar dados de perfil 
+// editar dados de perfil
 router.put('/editadados/:id', (req, res, next) => {
     const idUser = req.params.id;
     const nome = req.body.nome;
@@ -400,10 +401,10 @@ router.get('/listaramigos/:id', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser 
-            From amigos inner join 
-            usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") 
-            OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") 
+            const query = `select amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser
+            From amigos inner join
+            usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}")
+            OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}")
             where (amigos.id_solicitante = ${idUser} OR amigos.id_solicitado=${idUser}) and situacao = 'a'`;
             conn.query(query, (eror, result) => {
                 conn.release();
@@ -423,10 +424,10 @@ router.get('/listarpendentes/:id', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select DISTINCT amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser 
-            From amigos inner join 
-            usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}") 
-            OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}") 
+            const query = `select DISTINCT amigos.id_amigos,usuarios.id_user, usuarios.nome,usuarios.fotoUser
+            From amigos inner join
+            usuarios On (usuarios.id_user = amigos.id_solicitante AND amigos.id_solicitante != "${idUser}")
+            OR (usuarios.id_user = amigos.id_solicitado AND amigos.id_solicitado != "${idUser}")
             where amigos.id_solicitado=${idUser} and situacao = 'p'`;
             conn.query(query, (eror, result) => {
                 conn.release();
@@ -448,9 +449,9 @@ router.get('/verificaamizade/:id/:idverifica', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `SELECT * 
-            FROM amigos 
-            WHERE 
+            const query = `SELECT *
+            FROM amigos
+            WHERE
             ((id_solicitante = ${idUser} and id_solicitado = ${idVerifica}) or (id_solicitante = ${idVerifica} and id_solicitado = ${idUser} ))`;
             conn.query(query, (eror, result) => {
                 conn.release();
@@ -463,7 +464,7 @@ router.get('/verificaamizade/:id/:idverifica', (req, res, next) => {
                         // 0 == não são amigos
                         return res.status(200).send({mensagem:'0'})
                     }else if(result[0].situacao == 'a'){
-                        // 1 são amigos 
+                        // 1 são amigos
                         //console.log(result)
                         return res.status(200).send({mensagem:'1'})
                     }else if((result[0].situacao == 'p')){
