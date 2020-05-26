@@ -3,7 +3,9 @@
 
 <head>
     <title>Page Title</title>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="http://localhost:3000/css/stylecheckout.css">
@@ -17,22 +19,44 @@
         <table class="table">
             <input type="hidden" name="sessao_id" value="1">
             <input type="hidden" name="cliente_id" value="10">
-            <tbody>
-                <% 
-                var data = [
-                    { id: "A", assento: "1" },
-                    { id: "B", assento: "2" },
-                    { id: "C", assento: "3" },
-                ];
-            for(var i=0; i < data.length; i++) { %>
-                <tr>
-                    <th scope="row"><%= data[i].id %></th>
-                    <td><%= data[i].assento %></td>
-                    <td><%= data[i].assento %></td>
-                    <td><%= data[i].assento %></td>
-                </tr>
-                <% } %>
-            </tbody>
+            <tr>
+                <thead>
+                    <tr>
+                      <th scope="col">1</th>
+                      <th scope="col">2</th>
+                      <th scope="col">3</th>
+                      <th scope="col">4</th>
+                      <th scope="col">5</th>
+                      <th scope="col">6</th>
+                      <th scope="col">7</th>
+                      <th scope="col">8</th>
+                      <th scope="col">9</th>
+                      <th scope="col">10</th>
+                      <th scope="col">11</th>
+                      <th scope="col">12</th>
+                      <th scope="col">13</th>
+                      <th scope="col">14</th>
+                      <th scope="col">15</th>
+                      <th scope="col">16</th>
+                      <th scope="col">17</th>
+                      <th scope="col">18</th>
+                      <th scope="col">19</th>
+                      <th scope="col">20</th>
+                    </tr>
+                  </thead>
+                <%
+                    var data = [
+                     { id: 1, name: "bob" },
+                     { id: 2, name: "john" },
+                    { id: 3, name: "jake" },
+                    ];
+                    for ( var i = 0; i < data.length; i++ ){%>
+                <td>
+                    <input type="checkbox" name="poltronas[]" class="teste" value="2">
+                    <p><%= data[i].name %></p>
+                </td>
+                <%}%>
+            </tr>
         </table>
         <input type="hidden" name="poltronasSelecionadas" id='poltronasSelecionadas' value="">
         <button type="submit" class="btn btn-success">Reservar</button>
@@ -47,13 +71,11 @@
             $.each($("input[name='poltronas[]']:checked"), function () {
                 checados.push($(this).val());
                 poltronas = checados.join(",")
+                console.log(poltronas)
                 $('#poltronasSelecionadas').val(poltronas)
             });
         });
     });</script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-    crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
     integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
     crossorigin="anonymous"></script>

@@ -295,6 +295,99 @@ router.get('/buscarfilmes/:nome', (req, res, next) => {
         }
     })
 })
-
-
+// rotas de rating dos filmes 
+// adciona rating
+router.post('/addrating', (req, res, next) => {
+    const Id_usuario = req.body.Id_usuario;
+    const Id_filme = req.body.Id_filme;
+    const rating = req.body.rating;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `INSERT INTO avaliacao (IdFilms,IdUsuario,rating) VALUES (?,?,?)`;
+            conn.query(query,[Id_filme,Id_usuario,rating], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    return res.status(200).send({ mensagem: 'Avaliação enviada' })
+                }
+            })
+        }
+    })
+})
+// confirma se o usuario já avaliou o filme
+router.get('/confirmarating/:iduser/:idfilme', (req, res, next) => {
+    const Id_usuario = req.params.iduser;
+    const Id_filme = req.params.idfilme;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `SELECT rating from avaliacao where IdUsuario = ? && IdFilms = ?`;
+            conn.query(query,[Id_usuario,Id_filme], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    if(result ==""){
+                        // nao avaliou
+                        return res.status(200).send({ mensagem: '0' })
+                    }else{
+                        //avaliou
+                        return res.status(200).send({ mensagem: '1' })
+                    }
+                }
+            })
+        }
+    })
+})
+// atualiza o rating 
+router.put('/updaterating', (req, res, next) => {
+    const Id_usuario = req.body.Id_usuario;
+    const Id_filme = req.body.Id_filme;
+    const rating = req.body.rating;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `UPDATE  avaliacao SET rating = ? where IdFilms = ? && IdUsuario = ?`;
+            conn.query(query,[rating,Id_filme,Id_usuario,rating], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    // avaliação atualizada
+                    return res.status(200).send({ mensagem: '1' })
+                }
+            })
+        }
+    })
+})
+router.get('/totalrating/:idfilme', (req, res, next) => {
+    const Id_filme = req.params.idfilme;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `SELECT SUM(rating) as totalrating , COUNT(IdUsuario) as totaluser from avaliacao where  IdFilms = ?`;
+            conn.query(query,[Id_filme], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                   const totalrating = result[0].totalrating
+                   const totalusers  = result[0].totaluser
+                   const ratingFinal = totalrating/totalusers
+                   return res.status(200).send({ratingFinal})
+                }
+            })
+        }
+    })
+})
 module.exports = router;

@@ -114,8 +114,21 @@ SET situacao='p'
 WHERE id_amigos = 10;
 
 DELETE FROM amigos WHERE id_amigos=12;
-select * from amigos;
+select * from usuarios;
 SELECT * 
 FROM amigos 
 WHERE 
   id_solicitado = 47 and situacao= 'p';
+  
+  
+  drop table avaliacao;
+  CREATE TABLE avaliacao(
+Id_avalia int auto_increment primary key,
+IdFilms INT(5)UNSIGNED NOT NULL,
+IdUsuario INT(5)UNSIGNED NOT NULL,
+rating int not null
+);
+select * from avaliacao;
+delete from avaliacao where id_avalia = 1;
+ALTER TABLE avaliacao ADD FOREIGN KEY(IdFilms) REFERENCES films(id_films);
+ALTER TABLE avaliacao ADD FOREIGN KEY(IdUsuario) REFERENCES usuarios(id_user);
