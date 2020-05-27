@@ -91,28 +91,6 @@ router.post('/', upload.single('img'), (req, res, next) => {
         }
     })
 })
-//Após curir o post a quantidade de likes aumenta +1
-router.put('/like', (req, res, next) => {
-    const like = req.body.like
-    const id_post = req.body.id_post
-    mysql.getConnection((err, conn) => {
-        if (err) {
-            return res.status(404).send({ error: err })
-        } else {
-            const query = `UPDATE post SET qntLikes = (?)+1 WHERE id_post=?;`;
-            conn.query(query, [like,id_post], (eror, result) => {
-                conn.release();
-                if (eror) {
-                    return res.status(500).send({ error: eror })
-                } else {
-                    return res.status(200).send({
-                        mensagem: "Post Curtido com sucessso"
-                    })
-                }
-            })
-        }
-    })
-});
 //Após deletar o comentário a quantidade de comentário aumenta +1
 router.put('/qntcoment/', (req, res, next) => {
     const qntcoment = req.body.qntcoment
@@ -157,5 +135,96 @@ router.put('/qntcomentnova/', (req, res, next) => {
         }
     })
 });
+// like post
+//add like na table N:N para confirmação
+router.post('/addlike', (req, res, next) => {
+    const Id_usuario = req.body.Id_usuario;
+    const Id_post = req.body.Id_post;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `INSERT INTO like_post (IdPost,IdUsuario) VALUES (?,?)`;
+            conn.query(query,[Id_post,Id_usuario], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: '0' })
+                } else {
+                    return res.status(200).send({ mensagem: '1' })
+                }
+            })
+        }
+    })
+})
+//add like
+router.put('/like', (req, res, next) => {
+    const like = req.body.like
+    const id_post = req.body.id_post
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(404).send({ error: err })
+        } else {
+            const query = `UPDATE post SET qntLikes = (?)+1 WHERE id_post=?;`;
+            conn.query(query, [like,id_post], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    return res.status(500).send({ mensagem:"1" })
+                } else {
+                    return res.status(200).send({
+                        mensagem: "1"
+                    })
+                }
+            })
+        }
+    })
+});
+//confirma like
+router.get('/confirmalike/:iduser/:idpost', (req, res, next) => {
+    const Id_usuario = req.params.iduser;
+    const Id_post = req.params.idpost;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `SELECT IdUsuario from like_post where IdUsuario = ? && IdPost = ?`;
+            conn.query(query,[Id_usuario,Id_post], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    if(result ==""){
+                        // nao curtiu
+                        return res.status(200).send({ mensagem: '0' })
+                    }else{
+                        //Curtiu
+                        return res.status(200).send({ mensagem: '1' })
+                    }
+                }
+            })
+        }
+    })
+})
+router.delete('/deletelike', (req, res, next) => {
+    const Id_usuario = req.body.Id_usuario;
+    const Id_post = req.body.Id_post;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `DELETE FROM like_post where IdUsuario = ? && IdPost = ?`;
+            conn.query(query,[Id_usuario,Id_post], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: '0' })
+                } else {
+                    return res.status(200).send({ mensagem: '1' })
+                }
+            })
+        }
+    })
+})
 
 module.exports = router;

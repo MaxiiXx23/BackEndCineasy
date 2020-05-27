@@ -132,3 +132,13 @@ select * from avaliacao;
 delete from avaliacao where id_avalia = 1;
 ALTER TABLE avaliacao ADD FOREIGN KEY(IdFilms) REFERENCES films(id_films);
 ALTER TABLE avaliacao ADD FOREIGN KEY(IdUsuario) REFERENCES usuarios(id_user);
+
+select * from like_post;
+select * from post;
+CREATE TABLE like_post(
+Id_like int auto_increment primary key,
+IdPost INT(5)UNSIGNED NOT NULL,
+IdUsuario INT(5)UNSIGNED NOT NULL
+);
+ALTER TABLE like_post ADD FOREIGN KEY(IdPost) REFERENCES post(id_post);
+ALTER TABLE like_post ADD FOREIGN KEY(IdUsuario) REFERENCES usuarios(id_user);

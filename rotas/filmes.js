@@ -60,7 +60,7 @@ router.get('/listaemcartaz/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme,,genero FROM films where status_filme = 1 LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films where status_filme = 1 LIMIT ?`;
             conn.query(query,[numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
