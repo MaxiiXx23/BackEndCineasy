@@ -169,7 +169,29 @@ router.put('/like', (req, res, next) => {
             conn.query(query, [like,id_post], (eror, result) => {
                 conn.release();
                 if (eror) {
-                    return res.status(500).send({ mensagem:"1" })
+                    return res.status(500).send({ mensagem:"0" })
+                } else {
+                    return res.status(200).send({
+                        mensagem: "1"
+                    })
+                }
+            })
+        }
+    })
+});
+// retira like
+router.put('/retiralike', (req, res, next) => {
+    const like = req.body.like
+    const id_post = req.body.id_post
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(404).send({ error: err })
+        } else {
+            const query = `UPDATE post SET qntLikes = (?)-1 WHERE id_post=?`;
+            conn.query(query, [like,id_post], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    return res.status(500).send({ mensagem:"0" })
                 } else {
                     return res.status(200).send({
                         mensagem: "1"

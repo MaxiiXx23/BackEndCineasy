@@ -4,6 +4,7 @@
 }
 .title{
     color: #FFD700;
+    margin-top: 2%;
 }
 .backgroundContainer{
     background-color: black !important;
@@ -19,6 +20,7 @@
 }
 a.spacingIcone{
     color: #FFD700;
+    margin-top: 2%;
 }
 a.spacingIcone:{
     color: #FFD700;
