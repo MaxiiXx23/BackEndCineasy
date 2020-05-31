@@ -38,7 +38,11 @@ transporter.use('compile', hbs({
     },
     viewPath: './view/'
 }));
-
+router.get('/', (req, res, next) => {
+    res.status(200).send({
+        mensagem: 'Usando a porta Usuarios'
+    })
+});
 // router.get é o select, router.delete é deletar, router.post é para inserir e router.patch é para atualizar
 router.put('/updatepass', (req, res) => {
     const email = req.body.email;
@@ -134,39 +138,7 @@ router.put('/editapass', (req, res) => {
         }
     })
 })
-/*router.post('/sendpass', (req, res, next) => {
-    const email = req.body.email;
-    const nome = 'Max Jonatas';
-    const newPass = crypto.randomBytes(5).toString('hex')
-    const mensagem = {
-        from: "vidaboaetec@gmail.com",
-        to: email,
-        subject: "Olá " + nome + ",redefinição de senha do app Cineasy",
-        template: 'emailrecupera',
-        context: {
-            Email: email,
-            Nome: nome,
-            Senha: newPass
-        }
-    };
-    transporter.sendMail(mensagem, (error, info) => {
-        if (error) {
-            res.status(400).send(
-                error
-            )
-        } else {
-            res.status(200).send({
-                mensagem: 'Nova senha enviada com sucesso.'
-            })
-        }
-    })
-});*/
 
-router.get('/', (req, res, next) => {
-    res.status(200).send({
-        mensagem: 'Usando a porta Usuarios'
-    })
-});
 // rota de cadastro
 router.post('/', [
     check('email').isEmail().withMessage('Email inválido'),
@@ -179,6 +151,8 @@ router.post('/', [
     const nome = req.body.nome;
     const fotoUser = 'avatarperfil.png'
     const telefone = req.body.telefone;
+    // tipo_user = 1 == Empresa e tipo_user = 0 == Usuário normal
+    const tipo_user = '0'
     if (!ErrValidator.isEmpty()) {
         return res.status(422).json({ ErrValidator: ErrValidator.array(), mensagem: 'error validator' })
     } else {
@@ -186,8 +160,8 @@ router.post('/', [
             if (err) { return res.status(500).send({ error: err }) }
             bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
-                conn.query(`INSERT INTO usuarios(email,nome,fotoUser,telefone,senha)values(?,?,?,?,?)`,
-                    [email, nome,fotoUser, telefone, hash],
+                conn.query(`INSERT INTO usuarios(email,nome,fotoUser,telefone,senha)values(?,?,?,?,?,?)`,
+                    [email, nome, fotoUser, telefone, hash,tipo_user],
                     (eror, results) => {
 
                         conn.release();
@@ -221,6 +195,50 @@ router.post('/', [
         })
     }
 });
+// cadastro empresa
+router.post('/cadastroempresa', [
+    check('email').isEmail().withMessage('Email inválido'),
+    check('senha').not().isEmpty().isLength({ min: 8, max: 14 }).withMessage('Senha inválida'),
+    check('razaoSocial').not().isEmpty().withMessage('Razão social vázio'),
+    check('nomeFantasia').not().isEmpty().withMessage('Nome Fantasia vázio'),
+    check('cnpj').not().isEmpty().isLength({ min: 18, max: 18 }).withMessage('CNPJ inválido'),
+    check('telefone').isMobilePhone(['pt-BR']).withMessage('Número inválido')
+], (req, res, next) => {
+    const ErrValidator = myValidationResult(req);
+    const email = req.body.email;
+    const razaoSocial = req.body.razaoSocial;
+    const nomeFantasia = req.body.nomeFantasia;
+    const cnpj = req.body.cnpj;
+    const telefone = req.body.telefone;
+    // tipo_user = 1 == Empresa e tipo_user = 0 == Usuário normal
+    const tipo_user = '1'
+    if (!ErrValidator.isEmpty()) {
+        return res.status(422).json({ ErrValidator: ErrValidator.array(), mensagem: 'error validator' })
+    } else {
+        mysql.getConnection((err, conn) => {
+            if (err) { return res.status(500).send({ error: err }) }
+            bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
+                if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
+                conn.query(`INSERT INTO usuarios(email,razaoSocial,nomeFantasia,cnpj,telefone,senha,tipo_user)values(?,?,?,?,?,?,?)`,
+                    [email, razaoSocial, nomeFantasia,cnpj, telefone, hash,tipo_user],
+                    (eror, results) => {
+
+                        conn.release();
+                        if (eror) {
+                            return res.status(500).send({ eror, mensagem: 'error' })
+                        } else {
+                            
+                            return res.status(200).send({ mensagem: 'Sua conta Empresa foi criada' })
+
+                        }
+                        // retornar o RESULTS para tirar o loop infinito
+                    }
+                )
+            })
+        })
+    }
+});
+
 // login com jwt 
 router.post('/login', (req, res, next) => {
     mysql.getConnection((error, conn) => {
@@ -296,7 +314,7 @@ router.put('/uploadperfil/:id', upload.single('fileData'), (req, res, next) => {
             return res.status(500).send({ error: err })
         } else {
             const query = `UPDATE usuarios SET fotouser = ? WHERE id_user=?`
-            conn.query(query, [fotoperfil,idUser], (eror, result) => {
+            conn.query(query, [fotoperfil, idUser], (eror, result) => {
                 conn.release();
                 if (eror) {
                     console.log(eror)
@@ -315,7 +333,7 @@ router.put('/uploadcapa/:id', upload.single('fileCapa'), (req, res, next) => {
             return res.status(500).send({ error: err })
         } else {
             const query = `UPDATE usuarios SET capauser = ? WHERE id_user=?`
-            conn.query(query, [fotocapa,idUser], (eror, result) => {
+            conn.query(query, [fotocapa, idUser], (eror, result) => {
                 conn.release();
                 if (eror) {
                     console.log(eror)
@@ -336,7 +354,7 @@ router.put('/editadados/:id', (req, res, next) => {
             return res.status(500).send({ error: err })
         } else {
             const query = `UPDATE usuarios SET nome = ?,frase = ? WHERE id_user=?`
-            conn.query(query, [nome,frase,idUser], (eror, result) => {
+            conn.query(query, [nome, frase, idUser], (eror, result) => {
                 conn.release();
                 if (eror) {
                     //console.log(eror)
@@ -381,13 +399,13 @@ router.post('/adicionaramigos/:id', (req, res, next) => {
         } else {
             // a id_solicitado e id_solicitante devem ser foregery keys N:N para retornar os valores corretos
             const query = `INSERT INTO  amigos (id_solicitante,id_solicitado,situacao) VALUES (?,?,?)`;
-            conn.query(query,[idUser,solicitado,situacao], (eror, result) => {
+            conn.query(query, [idUser, solicitado, situacao], (eror, result) => {
                 conn.release();
                 if (eror) {
                     console.log(eror)
                     //return res.status(500).send({ erro: eror })
                 } else {
-                    return res.status(200).send({mensagem: 'Solicitação de amizada enviada'})
+                    return res.status(200).send({ mensagem: 'Solicitação de amizada enviada' })
                 }
             })
         }
@@ -458,20 +476,20 @@ router.get('/verificaamizade/:id/:idverifica', (req, res, next) => {
                 if (eror) {
                     //console.log(eror)
                     return res.status(500).send({ erro: eror })
-                }else if(result){
-                    if(result.length === 0){
+                } else if (result) {
+                    if (result.length === 0) {
                         // 0 == não são amigos
-                        return res.status(200).send({mensagem:'0'})
-                    }else if(result[0].situacao == 'a'){
+                        return res.status(200).send({ mensagem: '0' })
+                    } else if (result[0].situacao == 'a') {
                         // 1 são amigos 
                         //console.log(result)
-                        return res.status(200).send({mensagem:'1'})
-                    }else if((result[0].situacao == 'p')){
+                        return res.status(200).send({ mensagem: '1' })
+                    } else if ((result[0].situacao == 'p')) {
                         // 2 solocitação pendente
-                        return res.status(200).send({mensagem:'2'})
+                        return res.status(200).send({ mensagem: '2' })
                     }
-                }else{
-                    return res.status(200).send({mensagem:'erro, não há array'})
+                } else {
+                    return res.status(200).send({ mensagem: 'erro, não há array' })
                 }
             })
         }
@@ -484,14 +502,14 @@ router.delete('/excluiramigos/:id_amigos', (req, res, next) => {
             return res.status(500).send({ error: err })
         } else {
             const query = `DELETE FROM amigos WHERE id_amigos=?`;
-            conn.query(query,[id_amigos], (eror, result) => {
+            conn.query(query, [id_amigos], (eror, result) => {
                 conn.release();
                 if (eror) {
                     //console.log(eror)
                     return res.status(500).send({ erro: eror })
                 } else {
                     // Amigos excluido retorna 1
-                    return res.status(200).send({mensagem:'1'})
+                    return res.status(200).send({ mensagem: '1' })
                 }
             })
         }
@@ -513,7 +531,7 @@ router.put('/confirmaramizade/:id_amigos', (req, res, next) => {
                     return res.status(500).send({ erro: eror })
                 } else {
                     // Aceitou a solicitação de amizades retorna 1
-                    return res.status(200).send({mensagem:'1'})
+                    return res.status(200).send({ mensagem: '1' })
                 }
             })
         }

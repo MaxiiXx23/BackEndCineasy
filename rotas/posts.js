@@ -32,8 +32,38 @@ router.get('/ver/:limite', (req, res, next) => {
             return res.status(500).send({ error: err })
         } else {
             // res.status(200).send({mensagem:"conexao realizada"})
-            const query = `SELECT id_post,nome,note,img,img_post,tipo_file,DATE_FORMAT( data_post, "%d/%m/%Y" ) as data_post,qntLikes,qntComent FROM post WHERE data_post between '${dataBetween}' and curdate() LIMIT ?`;
+            const query = `SELECT post.id_post,post.note,post.img_post,post.tipo_file,DATE_FORMAT( post.data_post, "%d/%m/%Y" ) as data_post,post.qntLikes,post.qntComent, 
+            usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser
+            FROM post
+            INNER JOIN usuarios
+            ON post.fk_usuario = usuarios.id_user where data_post between '${dataBetween}' and curdate() LIMIT ?`;
             conn.query(query, [numLimite], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    return res.status(500).send({ error: eror })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+// rota que traz os post de acordo com o usuário
+router.get('/postempresa/:iduser/:limite', (req, res, next) => {
+    const limite = req.params.limite;
+    const iduser = req.params.iduser;
+    const numLimite = Number(limite)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            // res.status(200).send({mensagem:"conexao realizada"})
+            const query = `SELECT post.id_post,post.note,post.img_post,post.tipo_file,DATE_FORMAT( post.data_post, "%d/%m/%Y" ) as data_post,post.qntLikes,post.qntComent, 
+            usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser
+            FROM post
+            INNER JOIN usuarios
+            ON post.fk_usuario = usuarios.id_user where post.fk_usuario = ? order by data_post DESC limit ?`;
+            conn.query(query, [iduser,numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
                     return res.status(500).send({ error: eror })

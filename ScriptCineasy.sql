@@ -142,3 +142,19 @@ IdUsuario INT(5)UNSIGNED NOT NULL
 );
 ALTER TABLE like_post ADD FOREIGN KEY(IdPost) REFERENCES post(id_post);
 ALTER TABLE like_post ADD FOREIGN KEY(IdUsuario) REFERENCES usuarios(id_user);
+describe post;
+ALTER TABLE usuarios
+ADD tipo_user char(1);
+select * from post;
+select * from usuarios;
+SELECT post.id_post,post.note,post.img_post,post.tipo_file,DATE_FORMAT( post.data_post, "%d/%m/%Y" ) as data_post,post.qntLikes,post.qntComent, 
+usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser
+FROM post
+INNER JOIN usuarios
+ON post.fk_usuario = usuarios.id_user where data_post between '${dataBetween}' and curdate() LIMIT 5;
+
+SELECT post.id_post,post.note,post.img_post,post.tipo_file,DATE_FORMAT( post.data_post, "%d/%m/%Y" ) as data_post,post.qntLikes,post.qntComent, 
+usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser
+FROM post
+INNER JOIN usuarios
+ON post.fk_usuario = usuarios.id_user where post.fk_usuario = 58 order by data_post DESC limit 5;
