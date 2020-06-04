@@ -33,7 +33,7 @@ router.get('/ver/:limite', (req, res, next) => {
         } else {
             // res.status(200).send({mensagem:"conexao realizada"})
             const query = `SELECT post.id_post,post.note,post.img_post,post.tipo_file,DATE_FORMAT( post.data_post, "%d/%m/%Y" ) as data_post,post.qntLikes,post.qntComent, 
-            usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser
+            usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser,usuarios.frase as frase,usuarios.id_user as id_user
             FROM post
             INNER JOIN usuarios
             ON post.fk_usuario = usuarios.id_user where data_post between '${dataBetween}' and curdate() LIMIT ?`;
@@ -59,11 +59,32 @@ router.get('/postempresa/:iduser/:limite', (req, res, next) => {
         } else {
             // res.status(200).send({mensagem:"conexao realizada"})
             const query = `SELECT post.id_post,post.note,post.img_post,post.tipo_file,DATE_FORMAT( post.data_post, "%d/%m/%Y" ) as data_post,post.qntLikes,post.qntComent, 
-            usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser
+            usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser,usuarios.frase as frase
             FROM post
             INNER JOIN usuarios
             ON post.fk_usuario = usuarios.id_user where post.fk_usuario = ? order by data_post DESC limit ?`;
             conn.query(query, [iduser,numLimite], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    return res.status(500).send({ error: eror })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+router.get('/post/:id_post', (req, res, next) => {
+    const id_post = req.params.id_post;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            // res.status(200).send({mensagem:"conexao realizada"})
+            const query = `SELECT id_post,note,img_post,tipo_file,DATE_FORMAT( data_post, "%d/%m/%Y" ) as data_post,qntLikes,qntComent
+            FROM post
+            where post.id_post = ?`;
+            conn.query(query, [id_post], (eror, result) => {
                 conn.release();
                 if (eror) {
                     return res.status(500).send({ error: eror })
@@ -278,5 +299,25 @@ router.delete('/deletelike', (req, res, next) => {
         }
     })
 })
-
+// total de postagens empresa
+router.get('/totalposts/:fkusuario', (req, res, next) => {
+    const fk_usuario = req.params.fkusuario;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select COUNT(id_post) as totalposts from post where fk_usuario = ?`;
+            conn.query(query,[fk_usuario], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    const total = result[0].totalposts
+                    return res.status(200).send({ totalposts: total })
+                }
+            })
+        }
+    })
+})
 module.exports = router;

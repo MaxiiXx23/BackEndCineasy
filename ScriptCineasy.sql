@@ -158,3 +158,17 @@ usuarios.nomeFantasia as nomeFantasia, usuarios.fotoUser as fotoUser
 FROM post
 INNER JOIN usuarios
 ON post.fk_usuario = usuarios.id_user where post.fk_usuario = 58 order by data_post DESC limit 5;
+
+describe seguir;
+ALTER TABLE seguir ADD FOREIGN KEY(id_solicitante) REFERENCES usuarios(id_user);
+ALTER TABLE seguir ADD FOREIGN KEY(id_solicitado) REFERENCES usuarios(id_user);
+drop table seguir;
+create table seguir(
+	id_seguir int auto_increment primary key,
+    id_solicitante int,
+    id_solicitado int,
+    situacao char(1)
+);
+select COUNT(id_seguir) from seguir where id_solicitado = 59;
+select COUNT(id_post) from post where fk_usuario = 59;
+select * from seguir;

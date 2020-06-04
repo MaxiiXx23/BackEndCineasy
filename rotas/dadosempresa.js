@@ -100,4 +100,148 @@ router.put('/editapass', (req, res) => {
         }
     })
 })
+
+router.post('/seguir/:id', (req, res, next) => {
+    const idUser = req.params.id;
+    const solicitado = req.body.idSolicitado;
+    const situacao = 'a'; // (P Pendente, A aprovada R Rejeitada)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            // a id_solicitado e id_solicitante devem ser foregery keys N:N para retornar os valores corretos
+            const query = `INSERT INTO  seguir (id_solicitante,id_solicitado,situacao) VALUES (?,?,?)`;
+            conn.query(query, [idUser, solicitado, situacao], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    // 1 = seguindo
+                    return res.status(200).send({ mensagem: '1' })
+                }
+            })
+        }
+    })
+})
+// listar redes seguidas
+router.get('/listarseguindo/:id', (req, res, next) => {
+    const idUser = req.params.id;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select seguir.id_seguir,usuarios.id_user, usuarios.nomeFantasia,usuarios.fotoUser 
+            From seguir inner join 
+            usuarios On (usuarios.id_user = seguir.id_solicitante AND seguir.id_solicitante != "${idUser}") 
+            OR (usuarios.id_user = seguir.id_solicitado AND seguir.id_solicitado != "${idUser}") 
+            where (seguir.id_solicitante = ${idUser} OR seguir.id_solicitado=${idUser}) and situacao = 'a'`;
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+//confira seguindo
+router.get('/verificaseguir/:id/:idverifica', (req, res, next) => {
+    const idUser = req.params.id;
+    const idVerifica = req.params.idverifica;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `SELECT * 
+            FROM seguir 
+            WHERE 
+            ((id_solicitante = ${idUser} and id_solicitado = ${idVerifica}) or (id_solicitante = ${idVerifica} and id_solicitado = ${idUser} ))`;
+            conn.query(query, (eror, result) => {
+                conn.release();
+                //console.log(result[0].situacao)
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else if (result) {
+                    if (result.length === 0) {
+                        // 0 == não são amigos
+                        return res.status(200).send({ mensagem: '0' })
+                    } else if (result[0].situacao == 'a') {
+                        // 1 são amigos 
+                        //console.log(result)
+                        return res.status(200).send({ id_seguir: result[0].id_seguir,mensagem: '1' })
+                    }
+                } else {
+                    return res.status(200).send({ mensagem: 'erro, não há array' })
+                }
+            })
+        }
+    })
+})
+// deixar de seguir
+router.delete('/excluirseguir/:id_seguir', (req, res, next) => {
+    const id_seguir = req.params.id_seguir;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `DELETE FROM seguir WHERE id_seguir=?`;
+            conn.query(query, [id_seguir], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
+                } else {
+                    // Amigos excluido retorna 1
+                    return res.status(200).send({ mensagem: '1' })
+                }
+            })
+        }
+    })
+})
+// buscar empresas
+router.get('/buscarredes/:nome', (req, res, next) => {
+    const nome = req.params.nome;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select id_user,nomeFantasia, fotouser FROM usuarios WHERE nomeFantasia LIKE "%${nome}%"`
+            conn.query(query, (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    return res.status(200).send(result)
+                }
+            })
+        }
+    })
+})
+// total de seguidores
+router.get('/totalseguidores/:idempresa', (req, res, next) => {
+    const idempresa = req.params.idempresa;
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select COUNT(id_seguir) as totalseguidores from seguir where id_solicitado = ?`;
+            conn.query(query,[idempresa], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    //console.log(eror)
+                    return res.status(500).send({ mensagem: 'Erro' })
+                } else {
+                    const total = result[0].totalseguidores
+                    return res.status(200).send({ totalseguidores: total })
+                }
+            })
+        }
+    })
+})
 module.exports = router;

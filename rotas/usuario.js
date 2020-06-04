@@ -391,7 +391,6 @@ router.get('/buscarusuarios/:nome', (req, res, next) => {
 router.post('/adicionaramigos/:id', (req, res, next) => {
     const idUser = req.params.id;
     const solicitado = req.body.idSolicitado;
-    console.log(solicitado)
     const situacao = 'p'; // (P Pendente, A aprovada R Rejeitada)
     mysql.getConnection((err, conn) => {
         if (err) {
@@ -402,8 +401,8 @@ router.post('/adicionaramigos/:id', (req, res, next) => {
             conn.query(query, [idUser, solicitado, situacao], (eror, result) => {
                 conn.release();
                 if (eror) {
-                    console.log(eror)
-                    //return res.status(500).send({ erro: eror })
+                    //console.log(eror)
+                    return res.status(500).send({ erro: eror })
                 } else {
                     return res.status(200).send({ mensagem: 'Solicitação de amizada enviada' })
                 }
