@@ -208,6 +208,7 @@ router.post('/cadastroempresa', [
     const email = req.body.email;
     const razaoSocial = req.body.razaoSocial;
     const nomeFantasia = req.body.nomeFantasia;
+    const fotoUser = 'avatarperfil.png'
     const cnpj = req.body.cnpj;
     const telefone = req.body.telefone;
     // tipo_user = 1 == Empresa e tipo_user = 0 == Usuário normal
@@ -219,8 +220,8 @@ router.post('/cadastroempresa', [
             if (err) { return res.status(500).send({ error: err }) }
             bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
-                conn.query(`INSERT INTO usuarios(email,razaoSocial,nomeFantasia,cnpj,telefone,senha,tipo_user)values(?,?,?,?,?,?,?)`,
-                    [email, razaoSocial, nomeFantasia,cnpj, telefone, hash,tipo_user],
+                conn.query(`INSERT INTO usuarios(email,razaoSocial,nomeFantasia,fotoUser,cnpj,telefone,senha,tipo_user)values(?,?,?,?,?,?,?,?)`,
+                    [email, razaoSocial, nomeFantasia,fotoUser,cnpj, telefone, hash,tipo_user],
                     (eror, results) => {
 
                         conn.release();
@@ -317,7 +318,7 @@ router.put('/uploadperfil/:id', upload.single('fileData'), (req, res, next) => {
             conn.query(query, [fotoperfil, idUser], (eror, result) => {
                 conn.release();
                 if (eror) {
-                    console.log(eror)
+                    return res.status(500).send({ mensagem: 'Error' })
                 } else {
                     return res.status(200).send({ mensagem: 'Ok' })
                 }
@@ -336,7 +337,7 @@ router.put('/uploadcapa/:id', upload.single('fileCapa'), (req, res, next) => {
             conn.query(query, [fotocapa, idUser], (eror, result) => {
                 conn.release();
                 if (eror) {
-                    console.log(eror)
+                    return res.status(500).send({ mensagem: 'Error' })
                 } else {
                     return res.status(200).send({ mensagem: 'Ok' })
                 }
