@@ -16,7 +16,7 @@
 
 <body class="backgroundContainer">
   <div class="container-fluid backgroundContainer">
-    <form>
+    <form action= 'http://192.168.11.7:3000/pagamento/ckeckdados' method="POST">
       <!--Nome completo-->
       <div>
         <label class="text-left title">Nome:</label>
@@ -51,7 +51,7 @@
             As transações são criptografadas e seguras.
           </div>
         </div>
-        <input type="text" name="NumberCard" class="form-control" onkeyup="somenteNumeros(this);" maxlength="16"
+        <input type="text" name="NumeroCard" value='' class="form-control" onkeyup="somenteNumeros(this);" maxlength="16"
           placeholder="1111 2222 3333 4444" aria-label="número cartão">
       </div>
 
@@ -95,7 +95,7 @@
             O código de segurança, ou CVV, se refere aos 3 ou 4 números adicionais no verso ou na frente do seu cartão.
           </div>
         </div>
-        <input type="text" onkeyup="somenteNumeros(this);" maxlength="3" class="form-control"
+        <input type="text" name = "codCard" onkeyup="somenteNumeros(this);" maxlength="3" class="form-control"
           placeholder="111 ou 2222"><br />
         <div class="divBtn">
           <button type="submit" class="btn btn-success">Confirmar Dados</button>

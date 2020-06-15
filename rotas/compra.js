@@ -16,14 +16,13 @@ router.get('/', (req, res, next) => {
         mensagem: 'Usando a rota de pagamento'
     })
 });
-router.post('/ckeckdados', [check('NumberCard').isCreditCard().withMessage('Number card fail'),
+router.post('/ckeckdados', [check('NumeroCard').not().isEmpty().isLength({ min: 16, max: 16 }).withMessage('Número de cartao inválido'),
 check('nomeFull').not().isEmpty().withMessage('Nome vazio'),
 check('codCard').isLength({ min: 3, max: 3 }).withMessage('cod invalido'),
-check('cpf').isLength({ min: 14, max: 14 }).withMessage('cpf invalido'),
-check('data_vencim').contains('/').withMessage('data card invalido')],
+check('cpf').isLength({ min: 14, max: 14 }).withMessage('cpf invalido')],
     (req, res, next) => {
         const ErrValidator = validationResult(req);
-
+        console.log(req.body.NumeroCard)
         if (!ErrValidator.isEmpty()) {
             return res.status(422).json({ ErrValidator: ErrValidator.array() })
         } else {
@@ -41,6 +40,7 @@ router.post('/pagamento',
         const cpf = req.body.cpf;
         const data_vencim = req.body.data_vencim;
         // aqui já vou inserir os dados na tabela de compras;
+        console.log(req.body)
         res.status(200).send({
             mensagem: 'Pagamento aceito'
         })
@@ -48,8 +48,13 @@ router.post('/pagamento',
 router.get('/sessao', (req, res, next) => {
     res.render('../view/sessao')
 });
-router.get('/checkout', (req, res, next) => {
-    res.render('../view/checkout')
+router.get('/checkout/:iduser', (req, res, next) => {
+    const idUser = req.params.iduser
+    console.log(idUser)
+    res.render('../view/checkout',{
+        idUsuario: idUser,
+    }
+    )
 });
 router.post('/escolheassento', (req, res, next) => {
     // nos values passar o assento e o numero 
