@@ -25,3 +25,18 @@ a.spacingIcone{
 a.spacingIcone:{
     color: #FFD700;
 }
+.MsgErros {
+	padding: 25px;
+	border: 1px solid gray;
+	border-radius: 3px;
+	margin: 10px;
+	font-size: 12px;
+}
+.error {
+	border-color: #e8273b;
+	color: #FFF;
+	background-color: #ed5565;
+}
+li {
+    list-style-type: none;
+  }

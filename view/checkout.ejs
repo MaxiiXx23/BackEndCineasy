@@ -9,6 +9,9 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
   <link rel="stylesheet" type="text/css" href="http://192.168.11.7:3000/css/stylecheckout.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <title>Cineasy-Dados Pagamento</title>
@@ -16,23 +19,31 @@
 
 <body class="backgroundContainer">
   <div class="container-fluid backgroundContainer">
-    <form action= 'http://192.168.11.7:3000/pagamento/ckeckdados' method="POST">
+    <form action="http://192.168.11.7:3000/pagamento/checkdados" method="POST">
       <!--Nome completo-->
+      <% if (locals.validacao) { %>
+        <ul>
+            <% Object.values(validacao).forEach(function(error){ %>
+                  <li class="title"><div class="MsgErros error"><%= error.msg %></div></li>
+            <% }); %>
+        </ul>
+        <% } %>
       <div>
         <label class="text-left title">Nome:</label>
-        <input type="text" name="nomeFull" class="form-control" placeholder="Nome Completo" aria-label="Nome completo">
+        <input type="text" name="nomeFull" id="nomeFull" class="form-control" placeholder="Nome Completo"
+          aria-label="Nome completo">
       </div>
       <!--CPF-->
       <div>
         <label class="text-left title">CPF:</label>
-        <input type="text" id="cpf"  name="cpf" onkeydown="javascript: fMasc( this, mCPF );" maxlength="14" class="form-control"
-          placeholder="111.222.333-44" aria-label="CPF">
+        <input type="text" id="cpf" name="cpf" id="cpf" onkeydown="javascript: fMasc( this, mCPF );" maxlength="14"
+          class="form-control" placeholder="111.222.333-44" aria-label="CPF">
       </div>
       <!--Tipo de cartao-->
       <div class="clearfix">
         <p class="text-left title">Selecione sua forma de pagamento</p>
         <div class="input-group mb-3">
-          <select class="custom-select" id="inputGroupSelect01" name="tipocartao">
+          <select class="custom-select" id="inputGroupSelect01" name="tipocartao" id="tipocartao">
             <option value="1" selected>Cartão de crédito</option>
             <option value="2">Cartão de débito</option>
           </select>
@@ -51,8 +62,8 @@
             As transações são criptografadas e seguras.
           </div>
         </div>
-        <input type="text" name="NumeroCard" value='' class="form-control" onkeyup="somenteNumeros(this);" maxlength="16"
-          placeholder="1111 2222 3333 4444" aria-label="número cartão">
+        <input type="text" name="NumeroCard" value='' id="NumeroCard" class="form-control"
+          onkeyup="somenteNumeros(this);" maxlength="16" placeholder="1111 2222 3333 4444" aria-label="número cartão">
       </div>
 
       <p class="text-left title">Data de expiração:</p>
@@ -60,7 +71,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text" id="basic-addon1">Mês</span>
         </div>
-        <select class="custom-select" id="inputGroupSelect01" name="mes">
+        <select class="custom-select" id="inputGroupSelect01" name="mes" id="mes">
 
           <% 
             var options = [ "01", "02","03","04","05","06","07","08","09","10","11","12"];
@@ -71,7 +82,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text" id="basic-addon1">Ano</span>
         </div>
-        <select class="custom-select" id="inputGroupSelect01" name="ano">
+        <select class="custom-select" id="inputGroupSelect01" name="ano" id="ano">
           <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">Ano</span>
           </div>
@@ -95,64 +106,62 @@
             O código de segurança, ou CVV, se refere aos 3 ou 4 números adicionais no verso ou na frente do seu cartão.
           </div>
         </div>
-        <input type="text" name = "codCard" onkeyup="somenteNumeros(this);" maxlength="3" class="form-control"
-          placeholder="111 ou 2222"><br />
+        <input type="text" name="codCard" id="codCard" onkeyup="somenteNumeros(this);" maxlength="3"
+          class="form-control" placeholder="111 ou 2222"><br />
+          <input type="hidden"  name="iduser" value="<%= idUsuario %>">
+          <input type="hidden"  name="idplano" value="<%= idPlano %>">
         <div class="divBtn">
-          <button type="submit" class="btn btn-success">Confirmar Dados</button>
+          <button class="btn btn-success" id="signup-btn">Confirmar Dados</button>
         </div>
       </div>
     </form>
-    <!-- Scripts-->
-    <script>
-      function somenteNumeros(num) {
-        var er = /[^0-9.]/;
-        er.lastIndex = 0;
-        var campo = num;
-        if (er.test(campo.value)) {
-          campo.value = "";
+      <!-- Scripts-->
+      <script>
+        function somenteNumeros(num) {
+          var er = /[^0-9.]/;
+          er.lastIndex = 0;
+          var campo = num;
+          if (er.test(campo.value)) {
+            campo.value = "";
+          }
         }
-      }
-    </script>
-    <script>
-      function ValidaCPF() {
-        var RegraValida = document.getElementById("cpf").value;
-        var cpfValido = /^(([0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2})|([0-9]{11}))$/;
-        if (cpfValido.test(RegraValida) == true) {
-          console.log("CPF Válido");
-        } else {
-          console.log("CPF Inválido");
+      </script>
+      <script>
+        function ValidaCPF() {
+          var RegraValida = document.getElementById("cpf").value;
+          var cpfValido = /^(([0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2})|([0-9]{11}))$/;
+          if (cpfValido.test(RegraValida) == true) {
+            console.log("CPF Válido");
+          } else {
+            console.log("CPF Inválido");
+          }
         }
-      }
-      function fMasc(objeto, mascara) {
-        obj = objeto
-        masc = mascara
-        setTimeout("fMascEx()", 1)
-      }
+        function fMasc(objeto, mascara) {
+          obj = objeto
+          masc = mascara
+          setTimeout("fMascEx()", 1)
+        }
 
-      function fMascEx() {
-        obj.value = masc(obj.value)
-      }
+        function fMascEx() {
+          obj.value = masc(obj.value)
+        }
 
-      function mCPF(cpf) {
-        cpf = cpf.replace(/\D/g, "")
-        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2")
-        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2")
-        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-        return cpf
-      }
-    </script>
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-      crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-      crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
-      crossorigin="anonymous"></script>
+        function mCPF(cpf) {
+          cpf = cpf.replace(/\D/g, "")
+          cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2")
+          cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2")
+          cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+          return cpf
+        }
+      </script>
+      <!-- Optional JavaScript -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
