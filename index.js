@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser')
 const flash = require('connect-flash');
 const cors = require('cors');
 
+app.use(cors())
 app.use(cookieParser())
 app.use(session({
   secret: 'keyboard cat',
