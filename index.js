@@ -7,6 +7,7 @@ const exphbs  = require('express-handlebars');
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const flash = require('connect-flash');
+const cors = require('cors');
 
 app.use(cookieParser())
 app.use(session({
