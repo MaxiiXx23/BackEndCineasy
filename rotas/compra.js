@@ -28,7 +28,17 @@ check('cpf').isLength({ min: 14, max: 14 }).withMessage('CPF inválido.')],
         const erros = ErrValidator.errors
         const nome = req.body.nomeFull
         const numeroCard = req.body.NumeroCard
+        const NewnumeroCard = numeroCard.replace(/\d(?=\d{4})/g, "*");
         const tipoCartao = req.body.tipoCartao
+        plano = '';
+        valor = '';
+        if(idplano=='1'){
+            plano = 'Plano Hero'
+            valor = 'R$18,00/mês';
+        }else{
+            plano = 'Plano Super-Hero'
+            valor = 'R$22,00/mês';
+        }
         const codCard = req.body.codCard
         const cpf = req.body.cpf
         const dataExp = req.body.mes + '/' + req.body.ano
@@ -43,23 +53,24 @@ check('cpf').isLength({ min: 14, max: 14 }).withMessage('CPF inválido.')],
                 if(errBcrypt){
                     return res.status(500).send({ error: errBcrypt })
                 }else{
-                    return res.status(200).send({ HashNumber: hash })
+                    const dadosconfirma = {
+                        nome: nome,
+                        plano: plano,
+                        idplano: idplano,
+                        valorPlano: valor,
+                        NewnumeroCard: NewnumeroCard
+                    }
+                    req.flash('info', dadosconfirma);
+                    res.redirect('/pagamento/confirmar');
                 }
             })
         }
     });
 // finalizar compra
-router.post('/pagamento',
+router.get('/confirmar',
     (req, res, next) => {
-        const NumberCard = req.body.NumberCard;
-        const nomeFull = req.body.nomeFull;
-        const codCard = req.body.codCard;
-        const cpf = req.body.cpf;
-        const data_vencim = req.body.data_vencim;
         // aqui já vou inserir os dados na tabela de compras;
-        res.status(200).send({
-            mensagem: 'Pagamento aceito'
-        })
+        res.render('../view/confirmacao', { dadoscompra: req.flash('info') });
     });
 router.get('/sessao', (req, res, next) => {
     res.render('../view/sessao')

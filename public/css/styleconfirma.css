@@ -1,0 +1,19 @@
+.cardDiv{
+    margin-top: 5px;
+}
+.backgroundContainer{
+    background-color: black;
+}
+.boxInfos{
+    position: absolute;
+    z-index: 9999; /* número máximo é 9999 */
+    color:'white';
+    margin-bottom: -150px;
+}
+.banner{
+    width: 1080px;
+    height: 768px;
+}
+.alignbtn{
+   margin-left: 28%;
+}

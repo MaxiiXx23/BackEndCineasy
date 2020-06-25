@@ -4,6 +4,17 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const methodOverride = require('method-override');
 const exphbs  = require('express-handlebars');
+const session = require('express-session')
+const cookieParser = require('cookie-parser')
+const flash = require('connect-flash');
+
+app.use(cookieParser())
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+}))
+app.use(flash());
 app.use(bodyParser.urlencoded({extended:false})) 
 app.use(bodyParser.json()) // o app só json como entrada de dados
 // middleware usado para conseguirmos usar todos methods como get,post, put e delete com estruturas html

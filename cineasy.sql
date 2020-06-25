@@ -1,134 +1,147 @@
-create database cineasy;
-use cineasy;
--- drop database cineasy;
- show tables;
- 
-create table cinema(
-	id_cinema int primary key auto_increment,
-    fk_usuario int,
-    fk_endereco_cinema int
+CREATE TABLE amigos (
+  id_amigos int(11) NOT NULL AUTO_INCREMENT,
+  id_solicitante int(11) DEFAULT NULL,
+  id_solicitado int(11) DEFAULT NULL,
+  situacao char(1) DEFAULT NULL,
+  PRIMARY KEY (id_amigos),
+  KEY id_solicitante (id_solicitante),
+  KEY id_solicitado (id_solicitado)
 );
 
-create table categoria_filme(
-	id_categoria int primary key auto_increment,
-    categoria varchar (30)
-  
-);
-create table filmes(
-	id_filme int primary key auto_increment,
-    nome_filme varchar (80),
-    sinopse text (100),
-    diretor varchar (80),
-    classificacao varchar (5),
-    duracao int,
-    elenco varchar (200),
-    data_lancamento date,
-    poster varchar (250),
-    status_filme int,
-    trailer varchar(250),
-    fk_categoria int
+CREATE TABLE avaliacao (
+  Id_avalia int(11) NOT NULL AUTO_INCREMENT,
+  IdFilms int(5) unsigned NOT NULL,
+  IdUsuario int(5) unsigned NOT NULL,
+  rating int(11) NOT NULL,
+  PRIMARY KEY (Id_avalia),
+  KEY IdFilms (IdFilms),
+  KEY IdUsuario (IdUsuario)
 );
 
-create table sessao(
-	id_sessao int primary key auto_increment,
-    horario varchar (9),
-    tipo_sessao char (3),
-    preco decimal (4,2),
-    fk_cinema int,
-    fk_filme int,
-    fk_sala int
+CREATE TABLE cinema (
+  id_cinema int(11) NOT NULL AUTO_INCREMENT,
+  nome varchar(100) DEFAULT NULL,
+  logo varchar(200) DEFAULT NULL,
+  endereco varchar(200) DEFAULT NULL,
+  PRIMARY KEY (id_cinema)
 );
 
-create table ingresso(
-	id_ingresso int primary key auto_increment,
-    fk_usuario int,
-    fk_filme int,
-    fk_sessao int,
-    fk_sala int
-);
-create table pagamento(
-	id_pagamento int primary key auto_increment,
-    bandeira_cartao varchar (50),
-    nome_user varchar(50),
-    sobrenome_user varchar (50),
-    validade date,
-    cod_seguranca varchar (5),
-    fk_endereco_cinema int
+CREATE TABLE comentarios (
+  id_comentario int(11) NOT NULL AUTO_INCREMENT,
+  status_comentario int(11) DEFAULT NULL,
+  comentario text,
+  fk_usuario int(11) DEFAULT NULL,
+  fk_post int(11) DEFAULT NULL,
+  PRIMARY KEY (id_comentario),
+  KEY fk_usuario (fk_usuario),
+  KEY fk_post (fk_post)
 );
 
-create table post(
-	id_post int primary key auto_increment,
-    titulo varchar (150),
-    descricacao text,
-    data_post date,
-    fk_usuario int
+CREATE TABLE filmes_genero (
+  Id int(11) NOT NULL AUTO_INCREMENT,
+  IdFilms int(5) unsigned NOT NULL,
+  IdGenero int(5) unsigned NOT NULL,
+  PRIMARY KEY (Id)
 );
 
-create table comentario(
-	id_comentario int primary key auto_increment,
-    comentarios text,
-    status_aprov int,
-    data_comentario date,
-	fk_post int,
-    fk_usuario int
-);
-create table usuarios(
-	id_usuarios int primary key auto_increment,
-    nome varchar(80),
-    razao_social varchar(100),
-    email varchar(80),
-    foto text,
-    endereco varchar (50),
-    fk_end int,
-    fk_pag int
-);
-
-create table endereco_user(
-	id_end int primary key auto_increment,
-    estado char(2),
-    bairro varchar(50),
-    rua varchar(50),
-    numero int,
-    cep int
+CREATE TABLE films (
+  id_films int(11) NOT NULL AUTO_INCREMENT,
+  nome varchar(50) NOT NULL,
+  nome_ori varchar(50) NOT NULL,
+  sinopse text NOT NULL,
+  genero varchar(200) DEFAULT NULL,
+  foto text,
+  classficacao varchar(5) NOT NULL,
+  duracao int(11) NOT NULL,
+  trailler varchar(100) NOT NULL,
+  diretor varchar(50) NOT NULL,
+  distribuidor varchar(50) NOT NULL,
+  elenco varchar(200) DEFAULT NULL,
+  pais_ori varchar(50) NOT NULL,
+  status_filme int(11) DEFAULT NULL,
+  data_estreia varchar(10) DEFAULT NULL,
+  PRIMARY KEY (id_films)
 );
 
-create table endereco_cine(
-	id_end_cine int primary key auto_increment,
-	estado char(2),
-    bairro varchar(50),
-    rua varchar(50),
-    numero int,
-    cep int
+CREATE TABLE generos (
+  id_genero int(11) NOT NULL AUTO_INCREMENT,
+  genero varchar(200) DEFAULT NULL,
+  PRIMARY KEY (id_genero)
 );
 
-create table sala(
-	id_sala int primary key auto_increment,
-    fila char(1),
-    lugar int,
-    status_assento int,
-    num_sala int
+CREATE TABLE like_post (
+  Id_like int(11) NOT NULL AUTO_INCREMENT,
+  IdPost int(5) unsigned NOT NULL,
+  IdUsuario int(5) unsigned NOT NULL,
+  PRIMARY KEY (Id_like),
+  KEY IdPost (IdPost),
+  KEY IdUsuario (IdUsuario)
 );
-   ALTER TABLE cinema ADD COLUMN ligacao INT; ALTER TABLE cinema ADD FOREIGN KEY (ligacao) REFERENCES sessao (id_sessao);
-   
-   ALTER TABLE categoria_filme ADD COLUMN ligacao INT; ALTER TABLE categoria_filme ADD FOREIGN KEY (ligacao) REFERENCES filmes (id_filme);
-   
-   ALTER TABLE filmes ADD COLUMN ligacao INT; ALTER TABLE filmes ADD FOREIGN KEY (ligacao) REFERENCES ingresso (id_ingresso);
-   
-   ALTER TABLE sessao ADD COLUMN ligacao INT; ALTER TABLE sessao ADD FOREIGN KEY (ligacao) REFERENCES sala (id_sala);
-   
-   ALTER TABLE ingresso ADD COLUMN ligacao INT; ALTER TABLE ingresso ADD FOREIGN KEY (ligacao) REFERENCES usuarios (id_usuarios);
-   
-   ALTER TABLE pagamento ADD COLUMN ligacao INT; ALTER TABLE pagamento ADD FOREIGN KEY (ligacao) REFERENCES usuarios (id_usuarios);
-   
-   ALTER TABLE pagamento ADD COLUMN ligacao2 INT; ALTER TABLE pagamento ADD FOREIGN KEY (ligacao2) REFERENCES endereco_user (id_end);
-   
-   ALTER TABLE comentario ADD COLUMN ligacao INT; ALTER TABLE comentario ADD FOREIGN KEY (ligacao) REFERENCES post (id_post);
-   
-   ALTER TABLE usuarios ADD COLUMN ligacao INT; ALTER TABLE usuarios ADD FOREIGN KEY (ligacao) REFERENCES comentario (id_comentario);
-   
-   ALTER TABLE usuarios ADD COLUMN ligacao2 INT; ALTER TABLE usuarios ADD FOREIGN KEY (ligacao2) REFERENCES post (id_post);
-   
-   ALTER TABLE endereco_user ADD COLUMN ligacao INT; ALTER TABLE endereco_user ADD FOREIGN KEY (ligacao) REFERENCES usuarios (id_usuarios);
-   
-   ALTER TABLE endereco_cine ADD COLUMN ligacao INT; ALTER TABLE endereco_cine ADD FOREIGN KEY (ligacao) REFERENCES cinema (id_cinema);
 
+CREATE TABLE poltronas (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  sala_id int(11) NOT NULL,
+  local varchar(4) DEFAULT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE post (
+  id_post int(11) NOT NULL AUTO_INCREMENT,
+  nome varchar(70) DEFAULT NULL,
+  note varchar(150) DEFAULT NULL,
+  img varchar(500) DEFAULT NULL,
+  img_post varchar(1000) DEFAULT NULL,
+  qntLikes int(11) DEFAULT NULL,
+  qntComent int(11) DEFAULT NULL,
+  fk_usuario int(11) DEFAULT NULL,
+  data_post date DEFAULT NULL,
+  tipo_file varchar(100) DEFAULT NULL,
+  PRIMARY KEY (id_post),
+  KEY fk_usuario (fk_usuario)
+);
+
+CREATE TABLE reservas (
+  id_reserva int(11) NOT NULL AUTO_INCREMENT,
+  poltrona_id int(11) DEFAULT NULL,
+  sessao int(11) DEFAULT NULL,
+  cliente_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id_reserva),
+  KEY poltrona_id (poltrona_id)
+);
+
+CREATE TABLE seguir (
+  id_seguir int(11) NOT NULL AUTO_INCREMENT,
+  id_solicitante int(11) DEFAULT NULL,
+  id_solicitado int(11) DEFAULT NULL,
+  situacao char(1) DEFAULT NULL,
+  PRIMARY KEY (id_seguir),
+  KEY id_solicitante (id_solicitante),
+  KEY id_solicitado (id_solicitado)
+);
+
+CREATE TABLE sessao (
+  id_sessao int(11) NOT NULL AUTO_INCREMENT,
+  id_rede int(11) DEFAULT NULL,
+  horario time DEFAULT NULL,
+  sala varchar(4) DEFAULT NULL,
+  PRIMARY KEY (id_sessao)
+);
+
+CREATE TABLE usuarios (
+  id_user int(11) NOT NULL AUTO_INCREMENT,
+  nome varchar(50) DEFAULT NULL,
+  email varchar(60) DEFAULT NULL,
+  senha varchar(60) DEFAULT NULL,
+  razaoSocial varchar(100) DEFAULT NULL,
+  nomeFantasia varchar(80) DEFAULT NULL,
+  cnpj varchar(18) DEFAULT NULL,
+  fotoUser varchar(255) DEFAULT NULL,
+  capaUser varchar(255) DEFAULT NULL,
+  frase varchar(100) DEFAULT NULL,
+  telefone varchar(16) DEFAULT NULL,
+  FK_amigos int(11) DEFAULT NULL,
+  tipo_user char(1) DEFAULT NULL,
+  PRIMARY KEY (id_user),
+  UNIQUE KEY email (email),
+  KEY FK_amigos (FK_amigos)
+);
