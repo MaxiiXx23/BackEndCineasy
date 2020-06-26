@@ -201,7 +201,7 @@ router.post('/cadastroempresa', [
     check('senha').not().isEmpty().isLength({ min: 8, max: 14 }).withMessage('Senha inválida'),
     check('razaoSocial').not().isEmpty().withMessage('Razão social vázio'),
     check('nomeFantasia').not().isEmpty().withMessage('Nome Fantasia vázio'),
-    check('cnpj').not().isEmpty().isLength({ min: 18, max: 18 }).withMessage('CNPJ inválido'),
+    check('cnpj').not().isEmpty().isLength({ min: 14, max: 14 }).withMessage('CNPJ inválido'),
     check('telefone').isMobilePhone(['pt-BR']).withMessage('Número inválido')
 ], (req, res, next) => {
     const ErrValidator = myValidationResult(req);
