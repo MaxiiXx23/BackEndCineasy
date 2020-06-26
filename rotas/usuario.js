@@ -160,7 +160,7 @@ router.post('/', [
             if (err) { return res.status(500).send({ error: err }) }
             bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
-                conn.query(`INSERT INTO usuarios(email,nome,fotoUser,telefone,senha)values(?,?,?,?,?,?)`,
+                conn.query(`INSERT INTO usuarios(email,nome,fotoUser,telefone,senha, tipo_user)values(?,?,?,?,?,?)`,
                     [email, nome, fotoUser, telefone, hash,tipo_user],
                     (eror, results) => {
 
