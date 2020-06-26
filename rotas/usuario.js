@@ -264,7 +264,7 @@ router.post('/login', (req, res, next) => {
                     })
                     return res.status(200).send({
                         mensagem: 'Login feito com sucesso!',
-                        token, id: results[0].id_user, nome: results[0].nome
+                        token, id: results[0].id_user, nome: results[0].nome, tipo_user: results[0].tipo_user
                     })
                 }
                 return res.status(401).send({ mensagem: 'Falha na autenticação' })
