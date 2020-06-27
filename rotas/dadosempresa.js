@@ -54,6 +54,28 @@ router.post('/loginempresa', (req, res, next) => {
         })
     })
 })
+//Empresa info
+router.get('/dados/:id_user', (req, res, next) => {
+    const id = req.params.id_user
+    const numId = Number(id)
+    mysql.getConnection((err, conn) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            const query = `select nome, fotoUser,capaUser,frase,razaoSocial  from usuarios where id_user= ?`;
+            conn.query(query, [numId], (eror, result) => {
+                conn.release();
+                if (eror) {
+                    return res.status(500).send({ error: eror })
+                } else {
+                    return res.status(200).send(
+                        result
+                    )
+                }
+            })
+        }
+    })
+})
 
 router.put('/fotoempresa/:id', upload.single('fileData'), (req, res, next) => {
     const fotoperfil = req.file.filename;
