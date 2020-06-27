@@ -200,13 +200,13 @@ router.post('/cadastroempresa', [
     check('email').isEmail().withMessage('Email inválido'),
     check('senha').not().isEmpty().isLength({ min: 8, max: 14 }).withMessage('Senha inválida'),
     check('razaoSocial').not().isEmpty().withMessage('Razão social vázio'),
-    check('nomeFantasia').not().isEmpty().withMessage('Nome Fantasia vázio'),
+    check('nome').not().isEmpty().withMessage('Nome Fantasia vázio'),
     check('cnpj').not().isEmpty().isLength({ min: 14, max: 14 }).withMessage('CNPJ inválido'),
 ], (req, res, next) => {
     const ErrValidator = myValidationResult(req);
     const email = req.body.email;
     const razaoSocial = req.body.razaoSocial;
-    const nomeFantasia = req.body.nomeFantasia;
+    const nome = req.body.nome;
     const fotoUser = 'avatarperfil.png'
     const cnpj = req.body.cnpj;
     // tipo_user = 1 == Empresa e tipo_user = 0 == Usuário normal
@@ -218,8 +218,8 @@ router.post('/cadastroempresa', [
             if (err) { return res.status(500).send({ error: err }) }
             bcrypt.hash(req.body.senha, 10, (errBcrypt, hash) => {
                 if (errBcrypt) { return res.status(500).send({ error: errBcrypt }) }
-                conn.query(`INSERT INTO usuarios(email,razaoSocial,nomeFantasia,fotoUser,cnpj,senha,tipo_user)values(?,?,?,?,?,?,?)`,
-                    [email, razaoSocial, nomeFantasia,fotoUser,cnpj, hash,tipo_user],
+                conn.query(`INSERT INTO usuarios(email,razaoSocial,nome,fotoUser,cnpj,senha,tipo_user)values(?,?,?,?,?,?,?)`,
+                    [email, razaoSocial, nome,fotoUser,cnpj, hash,tipo_user],
                     (eror, results) => {
 
                         conn.release();
