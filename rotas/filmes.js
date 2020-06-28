@@ -3,7 +3,7 @@ const router = express.Router()
 const mysql = require('../models/conexao')
 const { check, validationResult } = require('express-validator')
 const multer = require("multer")
-
+//fazer um upload do poster e do banner ao mesmo tempo com o multer usando o array
 //Rota de inserção, nela chamarei a view e dou um select em generos para ser usado no select do front-end
 router.get('/', (req, res, next) => {
     mysql.getConnection((err, conn) => {
@@ -60,7 +60,7 @@ router.get('/listaemcartaz/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films where status_filme = 1 LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,banner,status_filme,genero FROM films where status_filme = 1 LIMIT ?`;
             conn.query(query,[numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -83,7 +83,7 @@ router.get('/listaestreia/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films where status_filme = 3 LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,banner,status_filme,genero FROM films where status_filme = 3 LIMIT ?`;
             conn.query(query,[numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -106,7 +106,7 @@ router.get('/listaemalta/:limit', (req, res, next) => {
             })
         } else {
 
-            const query = `SELECT id_films,nome,foto,status_filme,genero FROM films where status_filme = 2 LIMIT ?`;
+            const query = `SELECT id_films,nome,foto,banner,status_filme,genero FROM films where status_filme = 2 LIMIT ?`;
             conn.query(query,[numLimite], (eror, result) => {
                 conn.release();
                 if (eror) {
@@ -155,7 +155,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 //Rota de inserção de filme com upload de imagem
 // status filme : 1 EM CARTAZ; 2 EM ALTA, 3 ESTREIA, 4 Fora das bilheterias
-router.post('/', upload.single('img'), (req, res, next) => {
+router.post('/', upload.array('img',2), (req, res, next) => {
     let generoArray = req.body.genero;
     if (Array.isArray(generoArray)) {
         genero = generoArray.join()
@@ -165,7 +165,8 @@ router.post('/', upload.single('img'), (req, res, next) => {
     const nome = req.body.nome;
     const nome_ori = req.body.nome_ori;
     const sinopse = req.body.sinopse;
-    const img_filme = req.file.filename;
+    const img_poster = req.files[0].filename;
+    const img_banner = req.files[1].filename;
     const classif = req.body.class;
     const duracao = req.body.duracao;
     const trailer = req.body.trailer;
@@ -180,15 +181,14 @@ router.post('/', upload.single('img'), (req, res, next) => {
                 mensagem: "Conexão com o bau não realizada"
             })
         } else {
-            const query = `INSERT INTO films (nome,nome_ori,sinopse,foto,classficacao,genero,duracao,trailler,diretor,distribuidor,pais_ori,data_estreia,status_filme) VAlUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-            conn.query(query, [nome, nome_ori, sinopse, img_filme, classif, genero, duracao, trailer, diretor, distribuidor, pais_ori, data_estreia, status_filme], (eror, result) => {
+            const query = `INSERT INTO films (nome,nome_ori,sinopse,foto,banner,classficacao,genero,duracao,trailler,diretor,distribuidor,pais_ori,data_estreia,status_filme) VAlUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+            conn.query(query, [nome, nome_ori, sinopse, img_poster,img_banner, classif, genero, duracao, trailer, diretor, distribuidor, pais_ori, data_estreia, status_filme], (eror, result) => {
                 conn.release();
                 if (eror) {
                     return res.status(500).send({ error: eror })
                 } else {
                     return res.status(200).send({
                         mensagem: "Filme inserido com sucesso",
-                        result
                     })
                 }
             })
@@ -219,7 +219,7 @@ router.get('/update', (req, res, next) => {
     })
 });
 //Rota de update com upload de imagem
-router.put('/update', upload.single('img'), (req, res, next) => {
+router.put('/update', upload.array('img',2), (req, res, next) => {
     let generoArray = req.body.genero;
     if (Array.isArray(generoArray)) {
         genero = generoArray.join()
@@ -230,7 +230,8 @@ router.put('/update', upload.single('img'), (req, res, next) => {
     const nome = req.body.nome;
     const nome_ori = req.body.nome_ori;
     const sinopse = req.body.sinopse;
-    const img_filme = req.file.filename;
+    const img_poster = req.files[0].filename;
+    const img_banner = req.files[1].filename;
     const classif = req.body.class;
     const duracao = req.body.duracao;
     const trailer = req.body.trailer;
@@ -245,8 +246,8 @@ router.put('/update', upload.single('img'), (req, res, next) => {
                 mensagem: "Conexão com o banco não realizada"
             })
         } else {
-            const query = `UPDATE films SET nome = ?, nome_ori = ?, sinopse = ?, foto = ?,classficacao = ?,genero = ?, duracao = ?,trailler = ?,diretor= ?,distribuidor= ?,pais_ori = ?,data_estreia = ?,status_filme = ? WHERE id_films = ? `;
-            conn.query(query, [nome, nome_ori, sinopse, img_filme, classif, genero, duracao, trailer, diretor, distribuidor, pais_ori, data_estreia, status_filme, id_films], (eror, result) => {
+            const query = `UPDATE films SET nome = ?, nome_ori = ?, sinopse = ?, foto = ?, banner = ?,classficacao = ?,genero = ?, duracao = ?,trailler = ?,diretor= ?,distribuidor= ?,pais_ori = ?,data_estreia = ?,status_filme = ? WHERE id_films = ? `;
+            conn.query(query, [nome, nome_ori, sinopse, img_poster,img_banner, classif, genero, duracao, trailer, diretor, distribuidor, pais_ori, data_estreia, status_filme, id_films], (eror, result) => {
                 conn.release();
                 if (eror) {
                     return res.status(500).send({ error: eror })
@@ -312,7 +313,7 @@ router.post('/addrating', (req, res, next) => {
                     //console.log(eror)
                     return res.status(500).send({ mensagem: 'Erro' })
                 } else {
-                    return res.status(200).send({ mensagem: 'Avaliação enviada' })
+                    return res.status(200).send({ mensagem: '1' })
                 }
             })
         }
