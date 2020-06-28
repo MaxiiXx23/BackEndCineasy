@@ -62,7 +62,9 @@ CREATE TABLE films (
   data_estreia varchar(10) DEFAULT NULL,
   PRIMARY KEY (id_films)
 );
-
+ALTER TABLE films
+ADD banner varchar(255);
+desc films;
 CREATE TABLE generos (
   id_genero int(11) NOT NULL AUTO_INCREMENT,
   genero varchar(200) DEFAULT NULL,
