@@ -27,11 +27,12 @@ router.get('/', (req, res, next) => {
 router.post('/loginempresa', (req, res, next) => {
     mysql.getConnection((error, conn) => {
         if (error) { return res.status(500).send({ error: error }) }
+        const tipo_user = 1;
         const query = `SELECT * from usuarios WHERE email=?`;
         conn.query(query, [req.body.email], (error, results, fields) => {
             conn.release();
             if (error) { return res.status(500).send({ error: error }) }
-            if (results.length < 1) {
+            if (results.length < 1 || tipo_user == 0) {
                 return res.status(401).send({ mensagem: 'Falha na autenticação' })
             }
             bcrypt.compare(req.body.senha, results[0].senha, (err, result) => {
@@ -47,7 +48,7 @@ router.post('/loginempresa', (req, res, next) => {
                     })
                     return res.status(200).send({
                         mensagem: 'Login feito com sucesso!',
-                        token, id: results[0].id_user, nome: results[0].nomeFantasia
+                        token, id: results[0].id_user, nome: results[0].nome
                     })
                 }
             })
@@ -153,7 +154,7 @@ router.get('/listarseguindo/:id', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select seguir.id_seguir,usuarios.id_user, usuarios.nomeFantasia,usuarios.fotoUser 
+            const query = `select seguir.id_seguir,usuarios.id_user, usuarios.nome,usuarios.fotoUser 
             From seguir inner join 
             usuarios On (usuarios.id_user = seguir.id_solicitante AND seguir.id_solicitante != "${idUser}") 
             OR (usuarios.id_user = seguir.id_solicitado AND seguir.id_solicitado != "${idUser}") 
@@ -232,7 +233,7 @@ router.get('/buscarredes/:nome', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select id_user,nomeFantasia, fotouser FROM usuarios WHERE nomeFantasia LIKE "%${nome}%"`
+            const query = `select id_user,nome, fotouser FROM usuarios WHERE nome LIKE "%${nome}%"`
             conn.query(query, (eror, result) => {
                 conn.release();
                 if (eror) {
