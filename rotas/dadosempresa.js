@@ -27,12 +27,11 @@ router.get('/', (req, res, next) => {
 router.post('/loginempresa', (req, res, next) => {
     mysql.getConnection((error, conn) => {
         if (error) { return res.status(500).send({ error: error }) }
-        const tipo_user = 1;
         const query = `SELECT * from usuarios WHERE email=?`;
         conn.query(query, [req.body.email], (error, results, fields) => {
             conn.release();
             if (error) { return res.status(500).send({ error: error }) }
-            if (results.length < 1 || tipo_user == 0) {
+            if (results.length < 1) {
                 return res.status(401).send({ mensagem: 'Falha na autenticação' })
             }
             bcrypt.compare(req.body.senha, results[0].senha, (err, result) => {
@@ -40,6 +39,9 @@ router.post('/loginempresa', (req, res, next) => {
                     return res.status(401).send({err, mensagem: 'Falha na autenticação' })
                 }
                 if (result) {
+                    if(result[0].tipo_user == 0){
+                        return res.status(401).send({err, mensagem: 'Falha na autenticação' });    
+                    }
                     let token = jwt.sign({
                         id_usuario: results[0].id_user,
                         email: results[0].email
