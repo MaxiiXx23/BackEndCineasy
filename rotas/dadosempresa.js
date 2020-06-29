@@ -24,39 +24,36 @@ router.get('/', (req, res, next) => {
 });
 
 // login empresa
-router.post('/loginempresa', (req, res, next) => {
-    mysql.getConnection((error, conn) => {
-        if (error) { return res.status(500).send({ error: error }) }
-        const query = `SELECT * from usuarios WHERE email=?`;
-        conn.query(query, [req.body.email], (error, results, fields) => {
-            conn.release();
-            if (error) { return res.status(500).send({ error: error }) }
-            if (results.length < 1) {
-                return res.status(401).send({ mensagem: 'Falha na autenticação' })
-            }
-            bcrypt.compare(req.body.senha, results[0].senha, (err, result) => {
-                if (err) {
-                    return res.status(401).send({err, mensagem: 'Falha na autenticação' })
-                }
-                if (result) {
-                    if(result[0].tipo_user == 0){
-                        return res.status(401).send({err, mensagem: 'Falha na autenticação' });    
-                    }
-                    let token = jwt.sign({
-                        id_usuario: results[0].id_user,
-                        email: results[0].email
-                    }, JwtKey, {
-                        expiresIn: '1h'
-                    })
-                    return res.status(200).send({
-                        mensagem: 'Login feito com sucesso!',
-                        token, id: results[0].id_user, nome: results[0].nome
-                    })
-                }
-            })
-        })
-    })
-})
+// router.post('/loginempresa', (req, res, next) => {
+//     mysql.getConnection((error, conn) => {
+//         if (error) { return res.status(500).send({ error: error }) }
+//         const query = `SELECT * from usuarios WHERE email=?`;
+//         conn.query(query, [req.body.email], (error, results, fields) => {
+//             conn.release();
+//             if (error) { return res.status(500).send({ error: error }) }
+//             if (results.length < 1) {
+//                 return res.status(401).send({ mensagem: 'Falha na autenticação' })
+//             }
+//             bcrypt.compare(req.body.senha, results[0].senha, (err, result) => {
+//                 if (err) {
+//                     return res.status(401).send({err, mensagem: 'Falha na autenticação' })
+//                 }
+//                 if (result) {
+//                     let token = jwt.sign({
+//                         id_usuario: results[0].id_user,
+//                         email: results[0].email
+//                     }, JwtKey, {
+//                         expiresIn: '1h'
+//                     })
+//                     return res.status(200).send({
+//                         mensagem: 'Login feito com sucesso!',
+//                         token, id: results[0].id_user, nome: results[0].nome
+//                     })
+//                 }
+//             })
+//         })
+//     })
+// })
 //Empresa info
 router.get('/dados/:id_user', (req, res, next) => {
     const id = req.params.id_user
