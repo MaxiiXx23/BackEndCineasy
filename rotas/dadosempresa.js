@@ -39,7 +39,7 @@ router.post('/loginempresa', (req, res, next) => {
                     return res.status(401).send({err, mensagem: 'Falha na autenticação' })
                 }
                 if (result) {
-                    if(result[0].tipo_user == '0'){
+                    if(result[0].tipo_user == 0){
                         return res.status(401).send({err, mensagem: 'Falha na autenticação' });    
                     }
                     let token = jwt.sign({
