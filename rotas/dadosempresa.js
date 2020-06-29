@@ -62,7 +62,7 @@ router.get('/dados/:id_user', (req, res, next) => {
         if (err) {
             return res.status(500).send({ error: err })
         } else {
-            const query = `select nome, fotoUser,capaUser,frase,razaoSocial  from usuarios where id_user= ?`;
+            const query = `select nome,email,fotoUser,capaUser,frase,razaoSocial  from usuarios where id_user= ?`;
             conn.query(query, [numId], (eror, result) => {
                 conn.release();
                 if (eror) {
