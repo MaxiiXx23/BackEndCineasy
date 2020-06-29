@@ -254,6 +254,9 @@ router.post('/login', (req, res, next) => {
                     return res.status(401).send({ mensagem: 'Falha na autenticação' })
                 }
                 if (result) {
+                    if(result[0].tipo_user == '1'){
+                        return res.status(401).send({ mensagem: 'Falha na autenticação' })    
+                    }
                     let token = jwt.sign({
                         id_usuario: results[0].id_user,
                         email: results[0].email
