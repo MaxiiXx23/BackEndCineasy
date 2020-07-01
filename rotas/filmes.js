@@ -385,7 +385,7 @@ router.get('/totalrating/:idfilme', (req, res, next) => {
                    const totalrating = result[0].totalrating
                    const totalusers  = result[0].totaluser
                    const ratingFinal = totalrating/totalusers
-                   return res.status(200).send({ratingFinal})
+                   return res.status(200).send({ratingFinal,totalusers})
                 }
             })
         }

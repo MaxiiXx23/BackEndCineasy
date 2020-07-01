@@ -21,8 +21,8 @@ const config = {
     secure: false,
     port: 587,
     auth: {
-        user: "vidaboaetec@gmail.com",
-        pass: "hppi7u6G"
+        user: "cineasyoficial@gmail.com",
+        pass: "cineasy12345"
     },
     tls: {
         rejectUnauthorized: false
@@ -63,7 +63,7 @@ router.put('/updatepass', (req, res) => {
                             return res.status(500).send({ eror, mensagem: 'error' })
                         } else {
                             const mensagem = {
-                                from: "vidaboaetec@gmail.com",
+                                from: "cineasyoficial@gmail.com",
                                 to: email,
                                 subject: "Olá somos a Cineasy,solicitação de redefinição de senha do app Cineasy",
                                 template: 'emailrecupera',
@@ -110,7 +110,7 @@ router.put('/editapass', (req, res) => {
                             return res.status(500).send({ eror, mensagem: 'error' })
                         } else {
                             const mensagem = {
-                                from: "vidaboaetec@gmail.com",
+                                from: "cineasyoficial@gmail.com",
                                 to: email,
                                 subject: "Olá somos a Cineasy, você redefiniu sua senha do app Cineasy",
                                 template: 'emailrecupera',
@@ -169,9 +169,9 @@ router.post('/', [
                             return res.status(500).send({ eror, mensagem: 'error' })
                         } else {
                             const mensagem = {
-                                from: "vidaboaetec@gmail.com",
+                                from: "cineasyoficial@gmail.com",
                                 to: email,
-                                subject: "Olá " + nome + ",o cadastro em nosso app foi feita com sucesso",
+                                subject: "Olá " + nome + ",o cadastro em nosso app foi feito com sucesso",
                                 template: 'emailcadastro',
                             };
                             transporter.sendMail(mensagem, (error, info) => {
