@@ -3,15 +3,7 @@ const router = express.Router();
 const mysql = require('../models/conexao')
 const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
-// campos de pagemento : número de cartão, nome completo, data de vencimento e código de segurança e cpf
-/*
-    numberCardTest: 5031 7557 3453 0604
-                    5567 6603 2721 9742
-    tabela de compras deve conter o id do usuario, dados da compra
-    (sala, id da rede de cinema com endereço,filme e horário, e se é dublado ou não  ) 
-    e o que ele comprou;
-    . A tela de escolha de assentos, deve levar a tela de 
-*/
+const nodemailer = require('nodemailer')
 router.get('/', (req, res, next) => {
     res.status(200).send({
         mensagem: 'Usando a rota de pagamento'
@@ -30,12 +22,24 @@ check('cpf').isLength({ min: 14, max: 14 }).withMessage('CPF inválido.')],
         const numeroCard = req.body.NumeroCard
         const NewnumeroCard = numeroCard.replace(/\d(?=\d{4})/g, "*");
         const tipoCartao = req.body.tipoCartao
+        const data = new Date();
+        const verficarMes = (data.getMonth() + 1).toString();
+        const verificarDia = data.getDate();
+        if (verficarMes >= 10 && verificarDia == '00') {
+            dataOficial = data.getFullYear() + '/' + (data.getMonth() + 1).toString() + '/' + data.getDate();
+        } else {
+            if (verificarDia == '00') {
+                dataOficial = data.getFullYear() + '/' + (data.getMonth() + 1).toString() + '/0' + data.getDate();
+            } else {
+                dataOficial = data.getFullYear() + '/' + (data.getMonth() + 1).toString() + '/0' + data.getDate();
+            }
+        }
         plano = '';
         valor = '';
-        if(idplano=='1'){
+        if (idplano == '1') {
             plano = 'Plano Hero'
             valor = 'R$18,00/mês';
-        }else{
+        } else {
             plano = 'Plano Super-Hero'
             valor = 'R$22,00/mês';
         }
@@ -50,15 +54,18 @@ check('cpf').isLength({ min: 14, max: 14 }).withMessage('CPF inválido.')],
             })
         } else {
             bcrypt.hash(numeroCard, 10, (errBcrypt, hash) => {
-                if(errBcrypt){
+                if (errBcrypt) {
                     return res.status(500).send({ error: errBcrypt })
-                }else{
+                } else {
                     const dadosconfirma = {
-                        nome: nome,
+                        idUsuario: iduser,
                         plano: plano,
                         idplano: idplano,
                         valorPlano: valor,
-                        NewnumeroCard: NewnumeroCard
+                        NewnumeroCard: NewnumeroCard,
+                        HashCard: hash,
+                        cpf: cpf,
+                        dataCompra: dataOficial
                     }
                     req.flash('info', dadosconfirma);
                     res.redirect('/pagamento/confirmar');
@@ -66,14 +73,44 @@ check('cpf').isLength({ min: 14, max: 14 }).withMessage('CPF inválido.')],
             })
         }
     });
-// finalizar compra
+// confirmar compra
 router.get('/confirmar',
     (req, res, next) => {
-        // aqui já vou inserir os dados na tabela de compras;
         res.render('../view/confirmacao', { dadoscompra: req.flash('info') });
     });
+// finalizar compra
+router.post('/finalizar',
+    (req, res, next) => {
+        const fk_user = req.body.iduser;
+        const idplano = req.body.idplano;
+        const HashCard = req.body.HashCard;
+        const cpf = req.body.cpf;
+        const dataCompra = req.body.dataCompra;
+        mysql.getConnection((err, conn) => {
+            if (err) {
+                return res.status(500).send({ error: err })
+            }else{
+                const query = `INSERT INTO compra_plano(fk_user,plano,cartao,CPF,data_compra)values(?,?,?,?,?)`;
+                conn.query(query,
+                    [fk_user,idplano,HashCard,cpf,dataCompra],
+                    (eror, results) => {
+                        conn.release();
+                        if (eror) {
+                            return res.status(500).send({ eror, mensagem: 'error' })
+                        } else {
+                            res.redirect('/pagamento/finalizado');
+                        }
+                    }
+                )
+            }
+        })
+    });
+
 router.get('/sessao', (req, res, next) => {
     res.render('../view/sessao')
+});
+router.get('/finalizado', (req, res, next) => {
+    res.render('../view/finalizado')
 });
 router.get('/checkout/:iduser/:idplano', (req, res, next) => {
     const idUser = req.params.iduser

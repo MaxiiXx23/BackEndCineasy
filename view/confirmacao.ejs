@@ -31,7 +31,14 @@
               </h5>
               <p class="card-text text-center">Valor: <%=dadoscompra[0].valorPlano %></p>
               <p class="card-text text-center">Cartão: <%=dadoscompra[0].NewnumeroCard %></p>
-              <a href="#" class="btn btn-success alignbtn">Confirmar Compra</a>
+              <form action='http://192.168.11.5:3000/pagamento/finalizar' method="POST">
+                <input type="hidden"  name="iduser" value="<%=dadoscompra[0].idUsuario %>">
+                <input type="hidden"  name="idplano" value="<%=dadoscompra[0].idplano %>">
+                <input type="hidden"  name="HashCard" value="<%=dadoscompra[0].HashCard %>">
+                <input type="hidden"  name="cpf" value="<%=dadoscompra[0].cpf %>">
+                <input type="hidden"  name="dataCompra" value="<%=dadoscompra[0].dataCompra %>">
+                <button type="submit" class="btn btn-success alignbtn">Confirmar Compra</button>
+              </form>
             </div>
           </div>
     </div>

@@ -147,3 +147,12 @@ CREATE TABLE usuarios (
   UNIQUE KEY email (email),
   KEY FK_amigos (FK_amigos)
 );
+CREATE TABLE compra_plano (
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    fk_user int,
+    plano char(1),
+    cartao varchar(150),
+    CPF varchar (19),
+    data_compra date,
+    FOREIGN KEY (fk_user) REFERENCES usuarios(id_user)
+); 
