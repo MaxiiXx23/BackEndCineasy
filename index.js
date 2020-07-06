@@ -34,7 +34,7 @@ const RotaPost = require('./rotas/posts');
 const RotaFilme = require('./rotas/filmes');
 const RotaPagamento = require('./rotas/compra')
 const RotaEmpresa = require('./rotas/dadosempresa')
-
+const RotaSessao = require('./rotas/sessao')
 app.get('/', function (req, res) {
   res.send('Hello World')
 })
@@ -45,6 +45,7 @@ app.use('/posts',RotaPost);
 app.use('/filmes',RotaFilme);
 app.use('/pagamento',RotaPagamento);
 app.use('/empresa',RotaEmpresa);
+app.use('/sessao',RotaSessao);
 
  
 

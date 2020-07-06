@@ -5,9 +5,7 @@ const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer')
 router.get('/', (req, res, next) => {
-    res.status(200).send({
-        mensagem: 'Usando a rota de pagamento'
-    })
+    res.render('../view/cnpj')
 });
 router.post('/checkdados', [check('NumeroCard').isLength({ min: 16, max: 16 }).withMessage('Número de cartão inválido.'),
 check('nomeFull').not().isEmpty().withMessage('Nome vazio'),
@@ -105,10 +103,6 @@ router.post('/finalizar',
             }
         })
     });
-
-router.get('/sessao', (req, res, next) => {
-    res.render('../view/sessao')
-});
 router.get('/finalizado', (req, res, next) => {
     res.render('../view/finalizado')
 });

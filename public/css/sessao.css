@@ -99,10 +99,16 @@ input[type=checkbox]:before {
     vertical-align:middle;
     text-align: center;
     box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
-    background-color:#ccc;
+    background-color:#fff;
+    border: 1px solid #fff;
+    border-radius: 50%;
 }
 
 input[type=checkbox]:checked:before {
     background-color:Green;
     font-size: 15px;
+}
+input[type=checkbox]:disabled:before {
+  background-color:red;
+  font-size: 15px;
 }
